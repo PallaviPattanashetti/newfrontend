@@ -1,4 +1,4 @@
-import { Token, UserInfo } from "@/interfaces/interfaces";
+import { Token, UserInfo } from "@/interfaces/userinterfaces";
 
 const url = "";
 

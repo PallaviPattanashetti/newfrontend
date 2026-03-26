@@ -10,4 +10,9 @@ export const fetchMapLocation = async (maplocation: string) => {
     return data;
 
 
+
+
+
+
+
 }

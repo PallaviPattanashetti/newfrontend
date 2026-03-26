@@ -1,14 +1,14 @@
-export default function PeopleGrid() {
+export default function People() {
   const people = [
     {
       id: 1,
-      name: "Jose Martinez",
+      name: "Jose",
       help: "Experience the world's finest decor. I can help you transform your space into a masterpiece.",
     },
     {
       id: 2,
       name: "Ken ",
-      help: "Full-stack developer. I can help you debug React issues or set up a .NET backend.",
+      help: "Full-stack developer. I can help you debug React issues",
     },
     {
       id: 3,

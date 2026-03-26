@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createAccount, login } from "@/lib/user-services"; 
 
-const UnifiedAuthForm = () => {
+const RegisterForm = () => {
   const { push } = useRouter();
 
  
@@ -60,7 +60,7 @@ const UnifiedAuthForm = () => {
     <div className="min-h-screen bg-cover bg-center flex flex-col items-center p-4 md:p-8"
          style={{ backgroundImage: "url('/assets/TBBackround.jpeg')" }}>
  
-      <motion.div layout className="w-full max-w-[600px] bg-[#5F4F4F]/60 rounded-2xl flex items-center justify-center my-10 p-6 border border-black/10">
+      <motion.div layout className="w-full max-w-150 bg-[#5F4F4F]/60 rounded-2xl flex items-center justify-center my-10 p-6 border border-black/10">
         <h1 className="text-[40px] md:text-[64px] font-extrabold text-black uppercase tracking-tighter">
           {switchBool ? "Sign In" : "Register"}
         </h1>
@@ -93,7 +93,7 @@ const UnifiedAuthForm = () => {
                 </div>
                 <div className={inputContainer}>
                   <input 
-                    type="text" placeholder="Your Primary Skill" className={inputBase} required
+                    type="text" placeholder="Your Skill" className={inputBase} required
                     onChange={(e) => setFormData({...formData, skill: e.target.value})}
                   />
                 </div>
@@ -127,7 +127,7 @@ const UnifiedAuthForm = () => {
      
         <Button 
           type="submit" 
-          className="w-full max-w-[400px] h-[70px] md:h-[90px] bg-[#5F4F4F]/80 border-2 border-black rounded-[30px] hover:bg-black transition-all"
+          className="w-full max-w-100 h-17.5 md:h-22.5 bg-[#5F4F4F]/80 border-2 border-black rounded-[30px] hover:bg-black transition-all"
         >
           <span className="text-white text-2xl font-black uppercase tracking-widest">
             {switchBool ? "Login" : "Create Account"}
@@ -150,4 +150,4 @@ const UnifiedAuthForm = () => {
   );
 };
 
-export default UnifiedAuthForm;
+export default RegisterForm;

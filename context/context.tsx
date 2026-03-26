@@ -1,5 +1,5 @@
 "use client";
-import { MapLocation, MapLocationContextType } from "../interfaces/interfaces";
+import { MapLocation, MapLocationContextType } from "../interfaces/mapinterfaces";
 import { useState, useContext, createContext, ReactNode } from "react";
 
 const MapLocationContext = createContext<MapLocationContextType|undefined>(undefined);

@@ -1,16 +1,15 @@
 import { useState } from "react";
-export interface MapLocation{
-id: number
-lat:number
-long:number
-title:string
-category:string
+export interface MapLocation {
+    id: number
+    lat: number
+    long: number
+    title: string
+    category: string
 
 
 }
+export interface MapLocationContextType {
+    maplocation: MapLocation | null;
 
-
-export interface MapLocationContextType{
-    maplocation:MapLocation|null;
-    setMapLocation:(MapLocation:MapLocation|null)=>void
+    setMapLocation: (location: MapLocation | null) => void;
 }
