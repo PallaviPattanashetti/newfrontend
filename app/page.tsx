@@ -44,7 +44,7 @@ const Page = () => {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full max-w-[500px] min-h-[90px] md:min-h-[110px] bg-[#CD9238]/40 rounded-2xl flex items-center justify-center mt-10 border border-black/10 backdrop-blur-md shadow-xl"
+        className="w-full max-w-125 min-h-22.5 md:min-h-27.5 bg-[#CD9238]/40 rounded-2xl flex items-center justify-center mt-10 border border-black/10 backdrop-blur-md shadow-xl"
       >
         <h1 className="text-[40px] md:text-[64px] font-bold text-black tracking-tight">
           TimeBank
@@ -55,7 +55,7 @@ const Page = () => {
         variants={containerVars}
         initial="hidden"
         animate="visible"
-        className={`${inriaSerif.className} mt-12 md:mt-16 text-center max-w-[800px] px-6`}
+        className={`${inriaSerif.className} mt-12 md:mt-16 text-center max-w-200 px-6`}
       >
         <h2 className="text-[28px] md:text-[48px] leading-tight text-black flex flex-wrap justify-center">
           {words.map((word, i) => (
@@ -74,7 +74,7 @@ const Page = () => {
         whileHover={{ scale: 1.03, backgroundColor: "rgba(95, 79, 79, 0.4)" }}
         whileTap={{ scale: 0.97 }}
         onClick={() => router.push("/pages/Signin")}
-        className="w-full max-w-[350px] md:max-w-[400px] h-20 rounded-[24px] bg-[#5F4F4F]/30 border-2 border-black flex items-center justify-center text-[28px] md:text-[36px] font-bold text-black mt-20 shadow-2xl backdrop-blur-sm transition-colors cursor-pointer"
+        className="w-full max-w-87.5 md:max-w-100 h-20 rounded-3xl bg-[#5F4F4F]/30 border-2 border-black flex items-center justify-center text-[28px] md:text-[36px] font-bold text-black mt-20 shadow-2xl backdrop-blur-sm transition-colors cursor-pointer"
       >
         Get Started
       </motion.button>

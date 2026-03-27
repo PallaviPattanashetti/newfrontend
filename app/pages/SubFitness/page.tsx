@@ -38,7 +38,7 @@ const Page = () => {
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-[596px] min-h-[96px] bg-[#5F4F4F]/25 rounded-2xl flex items-center justify-center my-8 p-4 border-2 border-black backdrop-blur-sm shadow-lg"
+        className="w-full max-w-149 min-h-24 bg-[#5F4F4F]/25 rounded-2xl flex items-center justify-center my-8 p-4 border-2 border-black backdrop-blur-sm shadow-lg"
       >
         <h1 className="text-4xl md:text-[64px] font-extrabold text-black tracking-tight text-center">
           Fitness Help
@@ -57,9 +57,9 @@ const Page = () => {
             key={item.title}
             variants={cardVars}
             whileHover={{ y: -10 }}
-            className="w-full max-w-[280px] min-h-[380px] bg-[#F4F4F4]/60 border-2 rounded-2xl border-black flex flex-col overflow-hidden shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]"
+            className="w-full max-w-70 min-h-95 bg-[#F4F4F4]/60 border-2 rounded-2xl border-black flex flex-col overflow-hidden shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]"
           >
-            <div className="w-full h-[180px] border-b-2 border-black overflow-hidden relative">
+            <div className="w-full h-45 border-b-2 border-black overflow-hidden relative">
               <img
                 src={item.img}
                 alt={item.title}
@@ -67,7 +67,7 @@ const Page = () => {
               />
             </div>
 
-            <div className="p-5 flex flex-col items-center flex-grow justify-between">
+            <div className="p-5 flex flex-col items-center grow justify-between">
               <div className="w-full">
                 <h5 className="text-xl font-black text-black mb-2 text-center leading-tight uppercase tracking-tighter">
                   {item.title}
@@ -78,7 +78,7 @@ const Page = () => {
                 whileHover={{ scale: 1.05, backgroundColor: "#000", color: "#fff" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => router.push(`/fitness-help/${item.slug}`)}
-                className="w-full max-w-[180px] py-3 border-2 border-black bg-[#6F7887]/80 rounded-xl text-black font-bold text-[18px] sm:text-[20px] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-colors"
+                className="w-full max-w-45 py-3 border-2 border-black bg-[#6F7887]/80 rounded-xl text-black font-bold text-[18px] sm:text-[20px] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-colors"
               >
                 Click Here
               </motion.button>
