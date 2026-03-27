@@ -43,7 +43,7 @@ export function NavLinks() {
 
 
   {
-      icon: "/assets/",
+      icon: "/assets/Editprofile.jpeg",
       label: "Edit Profile",
       path: "/pages/Edit",
     },
