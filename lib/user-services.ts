@@ -1,6 +1,6 @@
 import { Token, UserInfo } from "@/interfaces/userinterfaces";
 
-const url = "";
+const url = "https://realtimebank-bahgerc2cwcrfdgb.westus3-01.azurewebsites.net/api/user/register";
 
 export const createAccount = async (user: UserInfo) => {
     const res = await fetch(url + '/register', {
@@ -45,8 +45,8 @@ export const login = async (user: UserInfo) => {
     return data;
 }
 
-export const getUserByUsername = async (useremail: string) => {
-    const res = await fetch(url + `/GetUserByUseremail/${useremail}`);
+export const getUserByUsername = async (UserEmail: string) => {
+    const res = await fetch(url + `/GetUserByUseremail/${UserEmail}`);
     const data = await res.json();
     localStorage.setItem('user', JSON.stringify(data));
 }

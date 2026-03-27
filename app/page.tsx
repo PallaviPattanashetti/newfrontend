@@ -74,7 +74,7 @@ const Page = () => {
         transition={{ delay: 1.5, duration: 0.8 }}
         whileHover={{ scale: 1.03, backgroundColor: "rgba(95, 79, 79, 0.4)" }}
         whileTap={{ scale: 0.97 }}
-        onClick={() => router.push("/pages/Register")}
+        onClick={() => router.push("/pages/Signin")}
         className="w-full max-w-[350px] md:max-w-[400px] h-20 rounded-[24px] bg-[#5F4F4F]/30 border-2 border-black flex items-center justify-center text-[28px] md:text-[36px] font-bold text-black mt-20 shadow-2xl backdrop-blur-sm transition-colors cursor-pointer"
       >
         Get Started

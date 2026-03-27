@@ -18,16 +18,19 @@ export function NavLinks() {
     { icon: "/assets/HomeHelp.png", label: "Home", path: "/" },
 
     { icon: "/assets/logIn.png", label: "Login", path: "/pages/Register" },
-     {
-      icon: "/assets/UserAccounts.jpeg",
-      label: "UserAccount",
-      path: "/pages/People",
-    },
+   
     {
       icon: "/assets/handshake.png",
       label: "Categories",
       path: "/pages/HelpCategory",
     },
+
+  {
+      icon: "/assets/UserAccounts.jpeg",
+      label: "UserAccount",
+      path: "/pages/People",
+    },
+
     {
       icon: "/assets/Chat Icon.png",
       label: "Messages",

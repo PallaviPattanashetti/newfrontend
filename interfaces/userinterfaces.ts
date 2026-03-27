@@ -9,7 +9,7 @@ export interface UserInfo {
 
 
 export interface UserLogin {
-    email: string
+    UserEmail: string
     password: string
 }
 
