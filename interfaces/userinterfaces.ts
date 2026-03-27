@@ -7,9 +7,14 @@ export interface UserInfo {
     skill: string
 }
 
+export interface RegisterUser {
+    usernameOrEmail: string
+    password: string
+}
+
 
 export interface UserLogin {
-    UserEmail: string
+    usernameOrEmail: string
     password: string
 }
 

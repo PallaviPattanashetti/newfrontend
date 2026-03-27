@@ -1,39 +1,56 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "flowbite-react";
 import { useRouter } from "next/navigation";
-import { login } from "@/lib/user-services";
-import { AnimatePresence, motion } from "framer-motion";
+import { checkToken, login } from "@/lib/user-services";
+import { motion } from "framer-motion";
 
 const SigninPage = () => {
   const { push } = useRouter();
 
   const [signin, setSignin] = useState({
-    email: "",
+    usernameOrEmail: "",
     password: "",
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const isLoggedIn = checkToken();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      push("/pages/HelpCategory");
+    }
+  }, [isLoggedIn, push]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage("");
 
     const token = await login({
-      UserEmail: signin.email,
+      usernameOrEmail: signin.usernameOrEmail,
       password: signin.password,
     });
 
     if (token) {
-      localStorage.setItem("token", token.token);
-      push("/pages/");
+      push("/pages/HelpCategory");
     } else {
-      alert("Invalid credentials");
+      setErrorMessage("Invalid credentials. Please try again.");
     }
+
+    setIsSubmitting(false);
   };
 
   const inputContainer =
     "w-full max-w-[505px] h-[60px] border-2 border-black rounded-[15px] bg-white flex items-center overflow-hidden mb-4 shadow-sm focus-within:ring-2 focus-within:ring-black transition-all";
   const inputBase =
     "w-full h-full text-center border-none focus:ring-0 text-black placeholder-black/50 font-medium bg-transparent";
+
+  if (isLoggedIn) {
+    return null;
+  }
 
   return (
     <div
@@ -54,35 +71,39 @@ const SigninPage = () => {
         onSubmit={handleSubmit}
         className="w-full max-w-lg flex flex-col items-center"
       >
-        <AnimatePresence mode="wait">
-          <motion.div className={inputContainer}>
-            <input
-              type="email"
-              placeholder="Email"
-              required
-              className={inputBase}
-              onChange={(e) =>
-                setSignin({ ...signin, email: e.target.value })
-              }
-            />
-          </motion.div>
+        <motion.div className={inputContainer}>
+          <input
+            type="text"
+            placeholder="Username or Email"
+            required
+            className={inputBase}
+            onChange={(e) =>
+              setSignin({ ...signin, usernameOrEmail: e.target.value })
+            }
+          />
+        </motion.div>
 
-          <div className={inputContainer}>
-            <input
-              type="password"
-              placeholder="Password"
-              required
-              className={inputBase}
-              onChange={(e) =>
-                setSignin({ ...signin, password: e.target.value })
-              }
-            />
-          </div>
-        </AnimatePresence>
+        <div className={inputContainer}>
+          <input
+            type="password"
+            placeholder="Password"
+            required
+            className={inputBase}
+            onChange={(e) =>
+              setSignin({ ...signin, password: e.target.value })
+            }
+          />
+        </div>
 
         <Button type="submit" className="w-full">
-          Login
+          {isSubmitting ? "Signing in..." : "Login"}
         </Button>
+
+        {errorMessage ? (
+          <p className="mt-3 text-sm text-red-200 bg-black/30 px-3 py-2 rounded-md">
+            {errorMessage}
+          </p>
+        ) : null}
 
         <p className="mt-4">
           New user?

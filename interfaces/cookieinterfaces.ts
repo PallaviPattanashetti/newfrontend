@@ -1,4 +1,4 @@
 export interface Cookie {
     name: string,
-    value: any
+    value: unknown
 }

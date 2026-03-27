@@ -115,7 +115,7 @@ const Page = () => {
         transition={{ duration: 1 }}
       >
         <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
-          "Time is not a commodity, it is a gift."
+          &ldquo;Time is not a commodity, it is a gift.&rdquo;
         </p>
       </motion.div>
     </div>

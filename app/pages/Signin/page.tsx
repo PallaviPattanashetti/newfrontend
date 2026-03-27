@@ -1,4 +1,3 @@
-import RegisterForm from '@/app/components/RegisterForm'
 import SigninForm from '@/app/components/SigninForm'
 import React from 'react'
 

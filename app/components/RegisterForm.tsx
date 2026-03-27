@@ -167,22 +167,27 @@
 
 "use client";
 
-import React, { useState } from "react";
-import { Button, Checkbox, Label } from "flowbite-react";
+import React, { useEffect, useState } from "react";
+import { Button } from "flowbite-react";
 import { useRouter } from "next/navigation";
-import { createAccount } from "@/lib/user-services";
+import { checkToken, createAccount } from "@/lib/user-services";
 import { motion } from "framer-motion";
 
 const RegisterPage = () => {
   const { push } = useRouter();
 
   const [register, setRegister] = useState({
-    name: "",
-    email: "",
+    usernameOrEmail: "",
     password: "",
-    city: "",
-    skill: "",
   });
+
+  const isLoggedIn = checkToken();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      push("/pages/HelpCategory");
+    }
+  }, [isLoggedIn, push]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,7 +196,7 @@ const RegisterPage = () => {
 
     if (success) {
       alert("Account Created! Please Sign In.");
-      push("/login"); 
+      push("/pages/Signin");
     } else {
       alert("Registration failed. Email might already exist.");
     }
@@ -201,6 +206,10 @@ const RegisterPage = () => {
     "w-full max-w-[505px] h-[60px] border-2 border-black rounded-[15px] bg-white flex items-center mb-4";
   const inputBase =
     "w-full h-full text-center border-none focus:ring-0 text-black";
+
+  if (isLoggedIn) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center p-6 bg-cover bg-center"
@@ -219,30 +228,9 @@ const RegisterPage = () => {
       <form onSubmit={handleSubmit} className="w-full max-w-lg flex flex-col items-center">
 
         <div className={inputContainer}>
-          <input type="text" placeholder="Full Name" required
+          <input type="text" placeholder="Username or Email" required
             className={inputBase}
-            onChange={(e) => setRegister({ ...register, name: e.target.value })}
-          />
-        </div>
-
-        <div className={inputContainer}>
-          <input type="text" placeholder="City" required
-            className={inputBase}
-            onChange={(e) => setRegister({ ...register, city: e.target.value })}
-          />
-        </div>
-
-        <div className={inputContainer}>
-          <input type="text" placeholder="Skill" required
-            className={inputBase}
-            onChange={(e) => setRegister({ ...register, skill: e.target.value })}
-          />
-        </div>
-
-        <div className={inputContainer}>
-          <input type="email" placeholder="Email" required
-            className={inputBase}
-            onChange={(e) => setRegister({ ...register, email: e.target.value })}
+            onChange={(e) => setRegister({ ...register, usernameOrEmail: e.target.value })}
           />
         </div>
 
@@ -251,11 +239,6 @@ const RegisterPage = () => {
             className={inputBase}
             onChange={(e) => setRegister({ ...register, password: e.target.value })}
           />
-        </div>
-
-        <div className="flex items-center gap-2 mb-4">
-          <Checkbox required />
-          <Label>I accept terms</Label>
         </div>
 
         <Button type="submit" className="w-full">Create Account</Button>

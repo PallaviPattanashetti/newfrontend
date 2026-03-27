@@ -1,20 +1,42 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
 import {
+  Button,
   Navbar,
   NavbarCollapse,
   NavbarLink,
   NavbarToggle,
 } from "flowbite-react";
+import { checkToken, clearToken } from "@/lib/user-services";
 
 export function NavLinks() {
 
-  
+  const { push } = useRouter();
   const pathname = usePathname();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const navItems = [
+  useEffect(() => {
+    const refreshAuthState = () => setIsLoggedIn(checkToken());
+
+    refreshAuthState();
+    window.addEventListener("storage", refreshAuthState);
+    window.addEventListener("auth-changed", refreshAuthState);
+
+    return () => {
+      window.removeEventListener("storage", refreshAuthState);
+      window.removeEventListener("auth-changed", refreshAuthState);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    clearToken();
+    push("/pages/Signin");
+  };
+
+  const navItems = useMemo(() => [
     { icon: "/assets/HomeHelp.png", label: "Home", path: "/" },
 
     { icon: "/assets/logIn.png", label: "Login", path: "/pages/Register" },
@@ -43,8 +65,12 @@ export function NavLinks() {
       path: "/pages/Credit",
     },
     { icon: "/assets/Location.png", label: "Maps", path: "/pages/GoogleMap" },
-     
-  ];
+  ], []);
+
+  const visibleNavItems = useMemo(
+    () => navItems.filter((item) => (isLoggedIn ? item.label !== "Login" : true)),
+    [isLoggedIn, navItems]
+  );
 
   const listVariants = {
     hidden: { opacity: 0 },
@@ -69,6 +95,17 @@ export function NavLinks() {
             placeholder="Search..."
           />
 
+          {isLoggedIn ? (
+            <Button
+              size="xs"
+              color="dark"
+              onClick={handleLogout}
+              className="rounded-full px-4"
+            >
+              Logout
+            </Button>
+          ) : null}
+
           <div className="md:hidden absolute right-6">
             <NavbarToggle />
           </div>
@@ -81,9 +118,9 @@ export function NavLinks() {
             animate="show"
             className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-4 py-4 md:py-0 w-full"
           >
-            {navItems.map((item, index) => (
+            {visibleNavItems.map((item) => (
               <NavbarLink
-                key={index}
+                key={item.path}
                 as={Link}
                 href={item.path}
                 className="p-0 border-none"

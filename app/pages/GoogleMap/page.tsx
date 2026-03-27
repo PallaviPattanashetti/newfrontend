@@ -1,7 +1,7 @@
 "use client";
 
 import { useMapLocation } from "@/context/context";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { fetchMapLocation } from "@/lib/dataservices";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,13 +21,7 @@ export default function VolunteerMap() {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (volunteerName && isMounted) {
-      handleAutoSearch(volunteerName);
-    }
-  }, [volunteerName, isMounted]);
-
-  const handleAutoSearch = async (name:any) => {
+  const handleAutoSearch = useCallback(async (name: string) => {
     setIsLoading(true);
     try {
       const data = await fetchMapLocation(name);
@@ -42,7 +36,13 @@ export default function VolunteerMap() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [setMapLocation]);
+
+  useEffect(() => {
+    if (volunteerName && isMounted) {
+      handleAutoSearch(volunteerName);
+    }
+  }, [volunteerName, isMounted, handleAutoSearch]);
 
   if (!isMounted) return null;
 

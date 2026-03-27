@@ -95,7 +95,7 @@ const Page = () => {
         transition={{ duration: 1.5 }}
       >
         <p className="text-[30px] md:text-[40px] mt-10 text-black text-center font-medium italic drop-shadow-sm">
-          "Trade skills, gain time, grow together."
+          &ldquo;Trade skills, gain time, grow together.&rdquo;
         </p>
       </motion.div>
     </div>

@@ -1,61 +1,165 @@
-import { Token, UserInfo } from "@/interfaces/userinterfaces";
+import { RegisterUser, Token, UserLogin } from "@/interfaces/userinterfaces";
 
-const url = "https://realtimebank-bahgerc2cwcrfdgb.westus3-01.azurewebsites.net/api/user/register";
+const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    "https://realtimebank-bahgerc2cwcrfdgb.westus3-01.azurewebsites.net";
 
-export const createAccount = async (user: UserInfo) => {
-    const res = await fetch(url + '/register', {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(user)
-    });
+const TOKEN_STORAGE_KEY = "token";
+const USER_STORAGE_KEY = "user";
+const AUTH_CHANGED_EVENT = "auth-changed";
 
-    if(!res.ok) {
-        const data = await res.json();
-        const message = data.message;
+type ApiResponse<T> = {
+    success?: boolean;
+    message?: string;
+} & T;
 
-        console.log(message);
-
-        return data.success;
+const parseJsonSafely = async <T>(res: Response): Promise<T | null> => {
+    try {
+        return (await res.json()) as T;
+    } catch {
+        return null;
     }
+};
 
-    const data = await res.json();
-    console.log(data);
-    return data.success;
-}
-
-export const login = async (user: UserInfo) => {
-    const res = await fetch(url + '/login', {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(user)
-    });
-
-    if(!res.ok) {
-        const data = await res.json();
-        const message = data.message;
-        console.log(message);
+const getTokenExp = (token: string): number | null => {
+    const parts = token.split(".");
+    if (parts.length !== 3) {
         return null;
     }
 
-    const data: Token = await res.json();
-    return data;
-}
+    try {
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"))) as {
+            exp?: number;
+        };
+        return typeof payload.exp === "number" ? payload.exp : null;
+    } catch {
+        return null;
+    }
+};
 
-export const getUserByUsername = async (UserEmail: string) => {
-    const res = await fetch(url + `/GetUserByUseremail/${UserEmail}`);
-    const data = await res.json();
-    localStorage.setItem('user', JSON.stringify(data));
-}
+export const setToken = (token: string) => {
+    if (typeof window === "undefined") {
+        return;
+    }
+    localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+};
+
+export const clearToken = () => {
+    if (typeof window === "undefined") {
+        return;
+    }
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    localStorage.removeItem(USER_STORAGE_KEY);
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+};
+
+export const getToken = () => {
+    if (typeof window === "undefined") {
+        return "";
+    }
+    return localStorage.getItem(TOKEN_STORAGE_KEY) ?? "";
+};
 
 export const checkToken = () => {
-    const token = localStorage.getItem('token');
-    return !!token; 
-}
+    const token = getToken();
+    if (!token) {
+        return false;
+    }
 
-export const getToken = () => localStorage.getItem('token') ?? '';
+    const exp = getTokenExp(token);
+    if (exp && Date.now() >= exp * 1000) {
+        clearToken();
+        return false;
+    }
 
-export const loggedInData = () => JSON.parse(localStorage.getItem('user')!);
+    return true;
+};
+
+export const authHeaders = (): HeadersInit => {
+    const token = getToken();
+    const headers: HeadersInit = { "Content-Type": "application/json" };
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+
+    return headers;
+};
+
+export const createAccount = async (user: RegisterUser) => {
+    const identifier = user.usernameOrEmail.trim();
+    const payload = {
+        username: identifier,
+        email: identifier,
+        UserEmail: identifier,
+        password: user.password,
+    };
+
+    const res = await fetch(`${BASE_URL}/api/user/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+
+    const data = await parseJsonSafely<ApiResponse<Record<string, unknown>>>(res);
+    return res.ok && Boolean(data?.success ?? true);
+};
+
+export const login = async (user: UserLogin) => {
+    const identifier = user.usernameOrEmail.trim();
+    const payload = {
+        username: identifier,
+        email: identifier,
+        UserEmail: identifier,
+        password: user.password,
+    };
+
+    const res = await fetch(`${BASE_URL}/api/user/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+
+    const data = await parseJsonSafely<Token>(res);
+    if (!res.ok || !data?.token) {
+        return null;
+    }
+
+    setToken(data.token);
+    return data;
+};
+
+export const getUserByUsername = async (userEmail: string) => {
+    const res = await fetch(`${BASE_URL}/api/user/GetUserByUseremail/${encodeURIComponent(userEmail)}`, {
+        headers: authHeaders(),
+    });
+
+    if (!res.ok) {
+        return null;
+    }
+
+    const data = await parseJsonSafely<Record<string, unknown>>(res);
+    if (data && typeof window !== "undefined") {
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
+    }
+
+    return data;
+};
+
+export const loggedInData = () => {
+    if (typeof window === "undefined") {
+        return null;
+    }
+
+    const raw = localStorage.getItem(USER_STORAGE_KEY);
+    if (!raw) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(raw);
+    } catch {
+        return null;
+    }
+};

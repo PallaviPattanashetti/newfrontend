@@ -1,9 +1,16 @@
 
 
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+
+const CONTACTS = [
+  { id: 1, name: "Ken", status: "Online", avatar: "KM" },
+  { id: 2, name: "Jose", status: "Away", avatar: "JM" },
+  { id: 3, name: "Jacob", status: "Online", avatar: "JD" },
+  { id: 4, name: "Isaiah", status: "Online", avatar: "IM" },
+];
 
 function ChatContent() {
   const searchParams = useSearchParams();
@@ -12,24 +19,16 @@ function ChatContent() {
 
   const [selectedPerson, setSelectedPerson] = useState("Jose");
 
-  const contacts = [
-    { id: 1, name: "Ken", status: "Online", avatar: "KM" },
-    { id: 2, name: "Jose", status: "Away", avatar: "JM" },
-    { id: 3, name: "Jacob", status: "Online", avatar: "JD" },
-    { id: 4, name: "Isaiah", status: "Online", avatar: "IM" },
-  ];
-
-  
-  useEffect(() => {
-    if (contactQuery) {
-      const found = contacts.find(
-        (c) => c.name.toLowerCase() === contactQuery.toLowerCase()
-      );
-      if (found) {
-        setSelectedPerson(found.name);
-      }
+  const activePerson = useMemo(() => {
+    if (!contactQuery) {
+      return selectedPerson;
     }
-  }, [contactQuery]);
+
+    const found = CONTACTS.find(
+      (c) => c.name.toLowerCase() === contactQuery.toLowerCase()
+    );
+    return found?.name ?? selectedPerson;
+  }, [contactQuery, selectedPerson]);
 
   return (
     <div
@@ -57,20 +56,20 @@ function ChatContent() {
             Contacts
           </h2>
           <div className="flex flex-col gap-1">
-            {contacts.map((person) => (
+            {CONTACTS.map((person) => (
               <motion.button
                 key={person.id}
                 whileHover={{ x: 5 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setSelectedPerson(person.name)}
                 className={`p-3 rounded-lg flex items-center gap-3 transition-colors ${
-                  selectedPerson === person.name
+                  activePerson === person.name
                     ? "bg-blue-500 text-white shadow-md"
                     : "text-gray-600 hover:bg-white/50"
                 }`}
               >
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ${
-                  selectedPerson === person.name ? "bg-white text-blue-600" : "bg-gray-200 text-gray-500"
+                  activePerson === person.name ? "bg-white text-blue-600" : "bg-gray-200 text-gray-500"
                 }`}>
                   {person.avatar}
                 </div>
@@ -86,18 +85,18 @@ function ChatContent() {
         <div className="flex-1 flex flex-col bg-white/30">
           <div className="p-4 border-b border-gray-100/20 flex items-center gap-3 bg-white/40">
             <motion.div 
-              key={selectedPerson}
+              key={activePerson}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               className="w-2 h-2 bg-green-500 rounded-full" 
             />
-            <span className="font-bold text-gray-800">{selectedPerson}</span>
+            <span className="font-bold text-gray-800">{activePerson}</span>
           </div>
 
           <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-4">
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
               <motion.div
-                key={selectedPerson} 
+                key={activePerson}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -105,10 +104,10 @@ function ChatContent() {
                 className="flex flex-col gap-4"
               >
                 <div className="bg-blue-600 text-white p-3 px-4 rounded-2xl rounded-tr-none self-end max-w-[80%] text-sm shadow-sm">
-                  Hi {selectedPerson}! Are you free for a quick chat about the skill swap?
+                  Hi {activePerson}! Are you free for a quick chat about the skill swap?
                 </div>
                 <div className="bg-white text-gray-800 p-3 px-4 rounded-2xl rounded-tl-none self-start max-w-[80%] text-sm shadow-sm">
-                  Hey! Yes, I'm available. What did you have in mind?
+                  Hey! Yes, I&apos;m available. What did you have in mind?
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -141,7 +140,7 @@ function ChatContent() {
         transition={{ delay: 0.5 }}
       >
         <p className="text-[32px] md:text-[40px] mt-10 text-gray-900 text-center font-light italic">
-          "A community is just a collection of shared hours."
+          &ldquo;A community is just a collection of shared hours.&rdquo;
         </p>
       </motion.div>
     </div>

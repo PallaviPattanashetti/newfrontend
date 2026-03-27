@@ -60,7 +60,7 @@ export default function People() {
 
             <div className="flex-1 px-4 md:px-12 py-6 md:py-0">
               <p className="text-gray-500 text-sm md:text-base leading-relaxed text-center md:text-left italic">
-                "{person.help}"
+                &ldquo;{person.help}&rdquo;
               </p>
             </div>
 

@@ -93,7 +93,7 @@ const Page = () => {
         transition={{ duration: 1 }}
       >
         <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
-          "Redefining wealth, one hour at a time."
+          &ldquo;Redefining wealth, one hour at a time.&rdquo;
         </p>
       </motion.div>
     </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Inria_Serif } from 'next/font/google';
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -87,7 +86,7 @@ const Page = () => {
         transition={{ delay: 2.2, duration: 1 }}
         className="mt-auto mb-6 text-black font-bold italic text-lg text-center"
       >
-        "The bank where everyone is equally wealthy."
+        &ldquo;The bank where everyone is equally wealthy.&rdquo;
       </motion.p>
     </div>
   );
