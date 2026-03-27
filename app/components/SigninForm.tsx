@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 const SigninPage = () => {
   const { push } = useRouter();
 
-  const [formData, setFormData] = useState({
+  const [signin, setSignin] = useState({
     email: "",
     password: "",
   });
@@ -18,8 +18,8 @@ const SigninPage = () => {
     e.preventDefault();
 
     const token = await login({
-      UserEmail: formData.email,
-      password: formData.password,
+      UserEmail: signin.email,
+      password: signin.password,
     });
 
     if (token) {
@@ -62,7 +62,7 @@ const SigninPage = () => {
               required
               className={inputBase}
               onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
+                setSignin({ ...signin, email: e.target.value })
               }
             />
           </motion.div>
@@ -74,7 +74,7 @@ const SigninPage = () => {
               required
               className={inputBase}
               onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
+                setSignin({ ...signin, password: e.target.value })
               }
             />
           </div>

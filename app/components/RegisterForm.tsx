@@ -176,7 +176,7 @@ import { motion } from "framer-motion";
 const RegisterPage = () => {
   const { push } = useRouter();
 
-  const [formData, setFormData] = useState({
+  const [register, setRegister] = useState({
     name: "",
     email: "",
     password: "",
@@ -187,7 +187,7 @@ const RegisterPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const success = await createAccount(formData);
+    const success = await createAccount(register);
 
     if (success) {
       alert("Account Created! Please Sign In.");
@@ -221,35 +221,35 @@ const RegisterPage = () => {
         <div className={inputContainer}>
           <input type="text" placeholder="Full Name" required
             className={inputBase}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onChange={(e) => setRegister({ ...register, name: e.target.value })}
           />
         </div>
 
         <div className={inputContainer}>
           <input type="text" placeholder="City" required
             className={inputBase}
-            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+            onChange={(e) => setRegister({ ...register, city: e.target.value })}
           />
         </div>
 
         <div className={inputContainer}>
           <input type="text" placeholder="Skill" required
             className={inputBase}
-            onChange={(e) => setFormData({ ...formData, skill: e.target.value })}
+            onChange={(e) => setRegister({ ...register, skill: e.target.value })}
           />
         </div>
 
         <div className={inputContainer}>
           <input type="email" placeholder="Email" required
             className={inputBase}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) => setRegister({ ...register, email: e.target.value })}
           />
         </div>
 
         <div className={inputContainer}>
           <input type="password" placeholder="Password" required
             className={inputBase}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            onChange={(e) => setRegister({ ...register, password: e.target.value })}
           />
         </div>
 
