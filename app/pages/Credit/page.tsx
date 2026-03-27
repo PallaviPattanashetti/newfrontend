@@ -6,9 +6,9 @@ export default function HelpSection() {
       style={{ backgroundImage: "url('/assets/TBBackround.jpeg')" }}
     >
 
-      <div className="w-full max-w-112.5 min-h-17.5 bg-[#5F4F4F]/50 rounded-2xl flex items-center justify-center my-6 md:my-8 p-4 border-2 border-black">
-        <h1 className="text-3xl md:text-[64px] font-extrabold text-black tracking-tight text-center">
-          Credits
+      <div className="w-full max-w-87.5  bg-[#5F4F4F]/50  rounded-xl flex items-center justify-center my-6 md:my-8 p-5 border border-gray-200 shadow-sm">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight text-center">
+          Transfer Credits
         </h1>
       </div>
 
@@ -45,7 +45,7 @@ export default function HelpSection() {
               </div>
               <div className="flex items-center gap-6 font-bold text-2xl">
                 <button className="text-green-600"> + </button>
-                <button className="text-red-600"> − </button>
+                <button className="text-red-600"> - </button>
               </div>
             </div>
           </div>
@@ -62,6 +62,8 @@ export default function HelpSection() {
             Transfer Credits
           </button>
           
+
+
         </div>
       </div>
     </div>

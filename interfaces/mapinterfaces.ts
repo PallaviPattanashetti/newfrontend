@@ -1,6 +1,7 @@
 import { useState } from "react";
 export interface MapLocation {
     id: number
+    name:string
     lat: number
     long: number
     title: string

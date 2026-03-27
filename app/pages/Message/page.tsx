@@ -1,22 +1,41 @@
+
+
 "use client";
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function ChatPage() {
+function ChatContent() {
+  const searchParams = useSearchParams();
+  
+  const contactQuery = searchParams.get("contact");
+
   const [selectedPerson, setSelectedPerson] = useState("Jose");
 
   const contacts = [
     { id: 1, name: "Ken", status: "Online", avatar: "KM" },
     { id: 2, name: "Jose", status: "Away", avatar: "JM" },
     { id: 3, name: "Jacob", status: "Online", avatar: "JD" },
+    { id: 4, name: "Isaiah", status: "Online", avatar: "IM" },
   ];
+
+  
+  useEffect(() => {
+    if (contactQuery) {
+      const found = contacts.find(
+        (c) => c.name.toLowerCase() === contactQuery.toLowerCase()
+      );
+      if (found) {
+        setSelectedPerson(found.name);
+      }
+    }
+  }, [contactQuery]);
 
   return (
     <div
       className="min-h-screen bg-cover bg-center flex flex-col items-center p-4 md:p-6 font-sans"
       style={{ backgroundImage: "url('/assets/TBBackround.jpeg')" }}
     >
-   
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -33,7 +52,6 @@ export default function ChatPage() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-225 h-150 border border-gray-200 bg-[#28a8af]/40 backdrop-blur-md flex flex-col md:flex-row shadow-xl rounded-2xl overflow-hidden"
       >
-      
         <div className="w-full md:w-72 border-b md:border-b-0 md:border-r border-gray-100 bg-white/60 p-4 overflow-y-auto">
           <h2 className="text-gray-500 font-semibold text-xs uppercase tracking-wider mb-4 px-2">
             Contacts
@@ -65,7 +83,6 @@ export default function ChatPage() {
           </div>
         </div>
 
-    
         <div className="flex-1 flex flex-col bg-white/30">
           <div className="p-4 border-b border-gray-100/20 flex items-center gap-3 bg-white/40">
             <motion.div 
@@ -97,7 +114,6 @@ export default function ChatPage() {
             </AnimatePresence>
           </div>
 
-         
           <div className="p-4 bg-white/50 border-t border-gray-100/20 backdrop-blur-sm">
             <div className="flex items-center gap-2">
               <input
@@ -129,5 +145,14 @@ export default function ChatPage() {
         </p>
       </motion.div>
     </div>
+  );
+}
+
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={null}>
+      <ChatContent />
+    </Suspense>
   );
 }

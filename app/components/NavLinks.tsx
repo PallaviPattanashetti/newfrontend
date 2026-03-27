@@ -10,6 +10,8 @@ import {
 } from "flowbite-react";
 
 export function NavLinks() {
+
+  
   const pathname = usePathname();
 
   const navItems = [
@@ -111,3 +113,9 @@ export function NavLinks() {
     </div>
   );
 }
+
+
+
+
+
+

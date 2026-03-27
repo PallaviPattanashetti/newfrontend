@@ -1,10 +1,16 @@
+
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 
-export default function HelpSection() {
+export default function HelpCategory() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+
+  const searchQuery = searchParams.get("category")?.toLowerCase() || "";
+  
   const [helpType, setHelpType] = useState<"get" | "offer" | null>(null);
 
   const topSectionImages = ["/assets/offerhelp.png", "/assets/handshake.png"];
@@ -18,22 +24,30 @@ export default function HelpSection() {
     { img: "/assets/Fitness help.png", title: "Fitness Help", path: "./SubFitness" },
   ];
 
+ 
+  const filteredCards = bottomCardData.filter((item) =>
+    item.title.toLowerCase().includes(searchQuery)
+  );
+
   return (
     <div
       className="min-h-screen bg-cover bg-center flex flex-col items-center p-4"
       style={{ backgroundImage: "url('/assets/TBBackround.jpeg')" }}
     >
-      <div className="w-full max-w-137.5 min-h-17.5 bg-[#5F4F4F]/50 rounded-2xl flex items-center justify-center my-8 p-4">
-        <h1 className="text-4xl md:text-[64px] font-extrabold text-black tracking-tight text-center">
+       <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="w-full max-w-87.5 bg-[#5F4F4F]/50 rounded-xl flex items-center justify-center my-6 md:my-8 p-5 border border-gray-200 shadow-sm"
+      >
+        <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight text-center">
           Help Category
         </h1>
-      </div>
+      </motion.div>
 
       <div
         className="w-full max-w-290 border-4 border-black flex flex-col md:flex-row items-center justify-center md:justify-between p-6 md:px-10 rounded-xl gap-8 mb-12"
         style={{ backgroundColor: "rgba(205, 146, 56, 0.08)" }}
       >
-        
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -59,7 +73,6 @@ export default function HelpSection() {
           )}
         </div>
 
-       
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -76,7 +89,8 @@ export default function HelpSection() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-12 w-full max-w-[1000px] justify-items-center mb-12">
-        {bottomCardData.map((item) => (
+      
+        {filteredCards.map((item) => (
           <motion.div
             key={item.title}
             initial={{ opacity: 0.3 }}
@@ -107,3 +121,4 @@ export default function HelpSection() {
     </div>
   );
 }
+

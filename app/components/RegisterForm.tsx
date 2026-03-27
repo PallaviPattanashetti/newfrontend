@@ -60,9 +60,20 @@ const RegisterForm = () => {
     <div className="min-h-screen bg-cover bg-center flex flex-col items-center p-4 md:p-8"
          style={{ backgroundImage: "url('/assets/TBBackround.jpeg')" }}>
  
-      <motion.div layout className="w-full max-w-150 bg-[#5F4F4F]/60 rounded-2xl flex items-center justify-center my-10 p-6 border border-black/10">
+      {/* <motion.div layout className="w-full max-w-150 bg-[#5F4F4F]/60 rounded-2xl flex items-center justify-center my-10 p-6 border border-black/10">
         <h1 className="text-[40px] md:text-[64px] font-extrabold text-black uppercase tracking-tighter">
           {switchBool ? "Sign In" : "Register"}
+        </h1>
+      </motion.div> */}
+
+
+       <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="w-full max-w-87.5 bg-[#5F4F4F]/50 rounded-xl flex items-center justify-center my-6 md:my-8 p-5 border border-gray-200 shadow-sm"
+      >
+        <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight text-center">
+       {switchBool ? "Sign In" : "Register"}
         </h1>
       </motion.div>
 
@@ -133,6 +144,9 @@ const RegisterForm = () => {
             {switchBool ? "Login" : "Create Account"}
           </span>
         </Button>
+
+     
+
 
      
         <div className="mt-8 text-center text-black font-bold">
