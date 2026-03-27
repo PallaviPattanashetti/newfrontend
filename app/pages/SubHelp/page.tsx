@@ -10,7 +10,7 @@ const Page = () => {
   const bottomCardData = [
     { title: "Decor", img: "/assets/Decor.jpeg", slug: "decor", path: "../Pages/DecorPage" },
     { title: "Cleaning", img: "/assets/cleaning.jpeg", slug: "cleaning", path: "../Pages/CleaningPage" },
-    { title: "Organizing/ Decluttering", img: "/assets/Org:decl.jpeg", slug: "organizing-decluttering", path: "/home-help/organizing" },
+    { title: "Organizing/ Decluttering", img: "/assets/Homedecor.jpeg", slug: "organizing-decluttering", path: "/home-help/organizing" },
     { title: "Elder Support", img: "/assets/Eldersupport.jpeg", slug: "elder-support" },
     { title: "Meal Prep", img: "/assets/mealpre.jpeg", slug: "meal-prep" },
     { title: "Grocery Shopping", img: "/assets/Groceryshop.jpeg", slug: "grocery-shopping" },
