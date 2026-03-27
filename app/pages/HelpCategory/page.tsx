@@ -1,8 +1,8 @@
 
-// "use client";
-// import { useState, Suspense } from "react";
-// import { useRouter, useSearchParams } from "next/navigation";
-// import { motion } from "framer-motion";
+"use client";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 
 // export default function HelpCategory() {
 //   const router = useRouter();
@@ -122,12 +122,7 @@
 //   );
 // }
 
-import React from 'react'
 
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 
 export default function HelpCategory() {
   const router = useRouter();
