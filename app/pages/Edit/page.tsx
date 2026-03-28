@@ -19,7 +19,7 @@ export default function EditProfile() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        // Safe type assertion to string
+     
         setImage(reader.result as string);
       };
       reader.readAsDataURL(file);
@@ -33,7 +33,7 @@ export default function EditProfile() {
       className="min-h-screen flex flex-col items-center p-6"
       style={{ backgroundImage: "url('/assets/TBBackround.jpeg')", backgroundSize: 'cover' }}
     >
-      {/* 1. HEADER CARD - Title changed to Black */}
+    
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -44,7 +44,6 @@ export default function EditProfile() {
         </h1>
       </motion.div>
 
-      {/* 2. PHOTO CARD */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -67,7 +66,6 @@ export default function EditProfile() {
         </div>
       </motion.div>
 
-      {/* 3. NAME CARD (SEPARATE) */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -75,7 +73,7 @@ export default function EditProfile() {
         className="bg-white/30 backdrop-blur-md p-6 rounded-2xl shadow-md mb-4 w-full max-w-md border border-white/20"
       >
         <label className="block text-[10px] font-black text-black uppercase mb-2 ml-1 tracking-[0.2em]">
-          Display Name
+          Profile Name
         </label>
         <input
           type="text"
@@ -85,7 +83,7 @@ export default function EditProfile() {
         />
       </motion.div>
 
-      {/* 4. BIO & SAVE CARD */}
+     
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
