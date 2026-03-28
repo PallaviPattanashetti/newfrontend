@@ -7,7 +7,7 @@ export default function HelpSection() {
     >
 
       <div className="w-full max-w-87.5  bg-[#5F4F4F]/50  rounded-xl flex items-center justify-center my-6 md:my-8 p-5 border border-gray-200 shadow-sm">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight text-center">
+        <h1 className="text-3xl md:text-4xl font-bold text-white  tracking-tight text-center">
           Transfer Credits
         </h1>
       </div>

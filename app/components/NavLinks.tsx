@@ -13,18 +13,15 @@ import {
 import { checkToken, clearToken } from "@/lib/user-services";
 
 export function NavLinks() {
-
   const { push } = useRouter();
   const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const refreshAuthState = () => setIsLoggedIn(checkToken());
-
     refreshAuthState();
     window.addEventListener("storage", refreshAuthState);
     window.addEventListener("auth-changed", refreshAuthState);
-
     return () => {
       window.removeEventListener("storage", refreshAuthState);
       window.removeEventListener("auth-changed", refreshAuthState);
@@ -38,40 +35,13 @@ export function NavLinks() {
 
   const navItems = useMemo(() => [
     { icon: "/assets/HomeHelp.png", label: "Home", path: "/" },
-
     { icon: "/assets/logIn.png", label: "Login", path: "/pages/Register" },
-
-
-  {
-      icon: "/assets/Editprofile.jpeg",
-      label: "Edit Profile",
-      path: "/pages/Edit",
-    },
-
-  {
-      icon: "/assets/UserAccounts.jpeg",
-      label: "UserAccount",
-      path: "/pages/People",
-    },
+    { icon: "/assets/Editprofile.jpeg", label: "Edit Profile", path: "/pages/Edit" },
+     { icon: "/assets/handshake.png", label: "Categories", path: "/pages/HelpCategory" },
+    { icon: "/assets/UserAccounts.jpeg", label: "UserAccount", path: "/pages/People" },
    
-    {
-      icon: "/assets/handshake.png",
-      label: "Categories",
-      path: "/pages/HelpCategory",
-    },
-
-
-    {
-      icon: "/assets/Chat Icon.png",
-      label: "Messages",
-      path: "/pages/Message",
-    },
-   
-    {
-      icon: "/assets/credit-icon-7.png",
-      label: "Credits",
-      path: "/pages/Credit",
-    },
+    { icon: "/assets/Chat Icon.png", label: "Messages", path: "/pages/Message" },
+    { icon: "/assets/credit-icon-7.png", label: "Credits", path: "/pages/Credit" },
     { icon: "/assets/Location.png", label: "Maps", path: "/pages/GoogleMap" },
   ], []);
 
@@ -120,18 +90,19 @@ export function NavLinks() {
         </div>
 
         <NavbarCollapse className="md:order-1">
+
           <motion.div
             variants={listVariants}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-4 py-4 md:py-0 w-full"
+            className="flex flex-row items-center justify-start md:justify-center gap-2 md:gap-4 py-4 md:py-0 w-full overflow-x-auto no-scrollbar"
           >
             {visibleNavItems.map((item) => (
               <NavbarLink
                 key={item.path}
                 as={Link}
                 href={item.path}
-                className="p-0 border-none"
+                className="p-0 border-none shrink-0" 
               >
                 <motion.div
                   variants={itemVariants}
@@ -149,7 +120,7 @@ export function NavLinks() {
                     className="h-8 w-8 md:h-12 md:w-12"
                     alt={item.label}
                   />
-                  <span className="text-xs md:text-sm mt-1 font-bold text-black whitespace-nowrap">
+                  <span className="text-[10px] md:text-sm mt-1 font-bold text-black whitespace-nowrap">
                     {item.label}
                   </span>
                 </motion.div>
@@ -161,6 +132,13 @@ export function NavLinks() {
     </div>
   );
 }
+
+
+
+
+
+
+
 
 
 

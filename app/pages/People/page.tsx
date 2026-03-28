@@ -44,7 +44,7 @@ export default function People() {
         {people.map((person) => (
           <div
             key={person.id}
-            className="flex flex-col md:flex-row items-center justify-between bg-white p-6 md:p-8 rounded-[2rem] shadow-xl border border-white/20"
+            className="flex flex-col md:flex-row items-center justify-between bg-white/30  p-6 md:p-8 rounded-[2rem] shadow-xl border border-white/20"
           >
           
             <div className="flex flex-col items-center space-y-3 shrink-0 w-32">
