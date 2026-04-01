@@ -129,15 +129,15 @@ export default function HelpCategory() {
   
   const [helpType, setHelpType] = useState<"get" | "offer" | null>(null);
 
-  const topSectionImages = ["/assets/Offer.gif", "/assets/Get.gif"];
+  const topSectionImages = ["/assets/offerhelp.png", "/assets/handshake.png"];
 
   const bottomCardData = [
-    { img: "/assets/HomeHelp.gif", title: "Home Help", path: "./SubHelp" },
-    { img: "/assets/LearningHelp.gif", title: "Learning Help", path: "./SubLearning" },
-    { img: "/assets/GardenHelp.gif", title: "Garden Help", path: "./SubGarden" },
-    { img: "/assets/PetHelp.gif", title: "Pet Help", path: "./SubPet" },
-    { img: "/assets/creativeHelp.gif", title: "Creative Help", path: "./SubCreative" },
-    { img: "/assets/FitnessHelp.gif", title: "Fitness Help", path: "./SubFitness" },
+    { img: "/assets/HomeHelp.png", title: "Home Help", path: "./SubHelp" },
+    { img: "/assets/Learning Help.png", title: "Learning Help", path: "./SubLearning" },
+    { img: "/assets/Garden.png", title: "Garden Help", path: "./SubGarden" },
+    { img: "/assets/pethelp.png", title: "Pet Help", path: "./SubPet" },
+    { img: "/assets/creative-help.png", title: "Creative Help", path: "./SubCreative" },
+    { img: "/assets/Fitness help.png", title: "Fitness Help", path: "./SubFitness" },
   ];
 
   return (
