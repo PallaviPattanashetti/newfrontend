@@ -34,15 +34,15 @@ export function NavLinks() {
   };
 
   const navItems = useMemo(() => [
-    { icon: "/assets/HomeHelp.png", label: "Home", path: "/" },
+    { icon: "/assets/Home.gif", label: "Home", path: "/" },
     { icon: "/assets/logIn.png", label: "Login", path: "/pages/Register" },
-    { icon: "/assets/Editprofile.jpeg", label: "Edit Profile", path: "/pages/Edit" },
-     { icon: "/assets/handshake.png", label: "Categories", path: "/pages/HelpCategory" },
-    { icon: "/assets/UserAccounts.jpeg", label: "UserAccount", path: "/pages/People" },
+    { icon: "/assets/Edit.gif", label: "Edit Profile", path: "/pages/Edit" },
+     { icon: "/assets/HelpCategory.gif", label: "Categories", path: "/pages/HelpCategory" },
+    { icon: "/assets/User.gif", label: "UserAccount", path: "/pages/People" },
    
-    { icon: "/assets/Chat Icon.png", label: "Messages", path: "/pages/Message" },
-    { icon: "/assets/credit-icon-7.png", label: "Credits", path: "/pages/Credit" },
-    { icon: "/assets/Location.png", label: "Maps", path: "/pages/GoogleMap" },
+    { icon: "/assets/Message.gif", label: "Messages", path: "/pages/Message" },
+    { icon: "/assets/AnimatedCredit.gif", label: "Credits", path: "/pages/Credit" },
+    { icon: "/assets/Map.gif", label: "Maps", path: "/pages/GoogleMap" },
   ], []);
 
   const visibleNavItems = useMemo(

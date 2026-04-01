@@ -199,17 +199,17 @@ export default function HelpCategory() {
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-12 w-full max-w-[1000px] justify-items-center mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-12 w-full max-w-250 justify-items-center mb-12">
         {bottomCardData.map((item) => (
           <motion.div
             key={item.title}
             initial={{ opacity: 0.3 }}
             animate={{ opacity: helpType ? 1 : 0.3 }}
-            className={`w-[300px] h-[432px] bg-[#F4F4F4]/50 border-2 rounded-2xl border-black flex flex-col transition-all ${
+            className={`w-75 h-108 bg-[#F4F4F4]/50 border-2 rounded-2xl border-black flex flex-col transition-all ${
               !helpType ? "grayscale pointer-events-none" : ""
             }`}
           >
-            <div className="w-full h-[206px] border-b-2 border-black overflow-hidden">
+            <div className="w-full h-51.5 border-b-2 border-black overflow-hidden">
               <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
             </div>
             <div className="p-4 flex flex-col items-center justify-between grow">
@@ -218,7 +218,7 @@ export default function HelpCategory() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => router.push(item.path)}
-                className={`w-47.5 h-[60px] border-[3px] border-black rounded-2xl text-black font-bold text-[36px] flex items-center justify-center ${
+                className={`w-47.5 h-15 border-[3px] border-black rounded-2xl text-black font-bold text-[36px] flex items-center justify-center ${
                   helpType === "get" ? "bg-blue-400" : "bg-green-400"
                 }`}
               >
