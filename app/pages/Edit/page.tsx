@@ -3,7 +3,7 @@ import React, { useState, useEffect, ChangeEvent } from "react";
 import { motion } from "framer-motion";
 
 export default function EditProfile() {
-  const [name, setName] = useState<string>("John Doe");
+  const [name, setName] = useState<string>("Jacob D");
   const [bio, setBio] = useState<string>("I love helping the community!");
   const [image, setImage] = useState<string>("/assets/UserAccounts.jpeg");
   const [isClient, setIsClient] = useState(false);
