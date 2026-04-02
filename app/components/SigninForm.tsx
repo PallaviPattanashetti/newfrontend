@@ -1,3 +1,128 @@
+// "use client";
+
+// import React, { useEffect, useState } from "react";
+// import { Button } from "flowbite-react";
+// import { useRouter } from "next/navigation";
+// import { checkToken, login } from "@/lib/user-services";
+// import { motion } from "framer-motion";
+
+// const SigninPage = () => {
+//   const { push } = useRouter();
+
+//   const [signin, setSignin] = useState({
+//     usernameOrEmail: "",
+//     password: "",
+//   });
+
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+//   const [errorMessage, setErrorMessage] = useState("");
+//   const isLoggedIn = checkToken();
+
+//   useEffect(() => {
+//     if (isLoggedIn) {
+//       push("/pages/HelpCategory");
+//     }
+//   }, [isLoggedIn, push]);
+
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setIsSubmitting(true);
+//     setErrorMessage("");
+
+//     const token = await login({
+//       usernameOrEmail: signin.usernameOrEmail,
+//       password: signin.password,
+//     });
+
+//     if (token) {
+//       push("/pages/HelpCategory");
+//     } else {
+//       setErrorMessage("Invalid credentials. Please try again.");
+//     }
+
+//     setIsSubmitting(false);
+//   };
+
+//   const inputContainer =
+//     "w-full max-w-[505px] h-[60px] border-2 border-black rounded-[15px] bg-white flex items-center overflow-hidden mb-4 shadow-sm focus-within:ring-2 focus-within:ring-black transition-all";
+//   const inputBase =
+//     "w-full h-full text-center border-none focus:ring-0 text-black placeholder-black/50 font-medium bg-transparent";
+
+//   if (isLoggedIn) {
+//     return null;
+//   }
+
+//   return (
+//     <div
+//       className="min-h-screen bg-cover bg-center flex flex-col items-center p-4 md:p-8"
+//       style={{ backgroundImage: "url('/assets/TBBackround.jpeg')" }}
+//     >
+//       <motion.div
+//         initial={{ y: -20, opacity: 0 }}
+//         animate={{ y: 0, opacity: 1 }}
+//         className="w-full max-w-87.5 bg-[#5F4F4F]/50 rounded-xl flex items-center justify-center my-6 md:my-8 p-5 border border-gray-200 shadow-sm"
+//       >
+//         <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight text-center">
+//           Sign In
+//         </h1>
+//       </motion.div>
+
+//       <form
+//         onSubmit={handleSubmit}
+//         className="w-full max-w-lg flex flex-col items-center"
+//       >
+//         <motion.div className={inputContainer}>
+//           <input
+//             type="text"
+//             placeholder="Username or Email"
+//             required
+//             className={inputBase}
+//             onChange={(e) =>
+//               setSignin({ ...signin, usernameOrEmail: e.target.value })
+//             }
+//           />
+//         </motion.div>
+
+//         <div className={inputContainer}>
+//           <input
+//             type="password"
+//             placeholder="Password"
+//             required
+//             className={inputBase}
+//             onChange={(e) =>
+//               setSignin({ ...signin, password: e.target.value })
+//             }
+//           />
+//         </div>
+
+//         <Button type="submit" className="w-full">
+//           {isSubmitting ? "Signing in..." : "Login"}
+//         </Button>
+
+//         {errorMessage ? (
+//           <p className="mt-3 text-sm text-red-200 bg-black/30 px-3 py-2 rounded-md">
+//             {errorMessage}
+//           </p>
+//         ) : null}
+
+//         <p className="mt-4">
+//           New user?
+//           <span
+//             className="underline ml-2 cursor-pointer"
+//             onClick={() => push("/pages/Register")}
+//           >
+//             Register
+//           </span>
+//         </p>
+//       </form>
+//     </div>
+//   );
+// };
+
+// export default SigninPage;
+
+
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -43,10 +168,11 @@ const SigninPage = () => {
     setIsSubmitting(false);
   };
 
+ 
   const inputContainer =
-    "w-full max-w-[505px] h-[60px] border-2 border-black rounded-[15px] bg-white flex items-center overflow-hidden mb-4 shadow-sm focus-within:ring-2 focus-within:ring-black transition-all";
+    "w-full max-w-[505px] h-[75px] border-2 border-black rounded-[20px] bg-white flex items-center mb-6 shadow-md transition-all focus-within:shadow-lg focus-within:scale-[1.02]";
   const inputBase =
-    "w-full h-full text-center border-none focus:ring-0 text-black placeholder-black/50 font-medium bg-transparent";
+    "w-full h-full text-center border-none focus:ring-0 text-black text-xl font-medium bg-transparent rounded-[20px]";
 
   if (isLoggedIn) {
     return null;
@@ -71,7 +197,12 @@ const SigninPage = () => {
         onSubmit={handleSubmit}
         className="w-full max-w-lg flex flex-col items-center"
       >
-        <motion.div className={inputContainer}>
+        <motion.div 
+          initial={{ x: -10, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className={inputContainer}
+        >
           <input
             type="text"
             placeholder="Username or Email"
@@ -83,7 +214,12 @@ const SigninPage = () => {
           />
         </motion.div>
 
-        <div className={inputContainer}>
+        <motion.div 
+          initial={{ x: 10, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className={inputContainer}
+        >
           <input
             type="password"
             placeholder="Password"
@@ -93,22 +229,30 @@ const SigninPage = () => {
               setSignin({ ...signin, password: e.target.value })
             }
           />
-        </div>
+        </motion.div>
 
-        <Button type="submit" className="w-full">
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="w-full max-w-[505px] h-[60px] text-xl rounded-[20px] bg-black hover:bg-gray-800 transition-colors"
+        >
           {isSubmitting ? "Signing in..." : "Login"}
         </Button>
 
         {errorMessage ? (
-          <p className="mt-3 text-sm text-red-200 bg-black/30 px-3 py-2 rounded-md">
+          <motion.p 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="mt-4 text-sm font-bold text-red-400 bg-black/60 px-4 py-2 rounded-lg"
+          >
             {errorMessage}
-          </p>
+          </motion.p>
         ) : null}
 
-        <p className="mt-4">
+        <p className="mt-6 text-white drop-shadow-md">
           New user?
           <span
-            className="underline ml-2 cursor-pointer"
+            className="underline ml-2 font-bold cursor-pointer hover:text-gray-300"
             onClick={() => push("/pages/Register")}
           >
             Register
