@@ -33,21 +33,41 @@ export function NavLinks() {
     push("/pages/Signin");
   };
 
-  const navItems = useMemo(() => [
-    { icon: "/assets/HomeHelp.png", label: "Home", path: "/" },
-    { icon: "/assets/logIn.png", label: "Login", path: "/pages/Register" },
-    { icon: "/assets/Editprofile.jpeg", label: "Edit Profile", path: "/pages/Edit" },
-     { icon: "/assets/handshake.png", label: "Categories", path: "/pages/HelpCategory" },
-    { icon: "/assets/UserAccounts.jpeg", label: "UserAccount", path: "/pages/People" },
-   
-    { icon: "/assets/Chat Icon.png", label: "Messages", path: "/pages/Message" },
-    { icon: "/assets/credit-icon-7.png", label: "Credits", path: "/pages/Credit" },
-    { icon: "/assets/Location.png", label: "Maps", path: "/pages/GoogleMap" },
-  ], []);
+  const navItems = useMemo(
+    () => [
+      { icon: "/assets/Home.gif", label: "Home", path: "/" },
+      { icon: "/assets/LogIn.gif", label: "Login", path: "/pages/Register" },
+      { icon: "/assets/Edit.gif", label: "Profile", path: "/pages/Edit" },
+      {
+        icon: "/assets/User.gif",
+        label: "Nearby Users",
+        path: "/pages/People",
+      },
+      {
+        icon: "/assets/HelpCategory.gif",
+        label: "Categories",
+        path: "/pages/HelpCategory",
+      },
+
+      {
+        icon: "/assets/Message.gif",
+        label: "Messages",
+        path: "/pages/Message",
+      },
+      {
+        icon: "/assets/AnimatedCredit.gif",
+        label: "Credits",
+        path: "/pages/Credit",
+      },
+      { icon: "/assets/Map.gif", label: "Maps", path: "/pages/GoogleMap" },
+    ],
+    [],
+  );
 
   const visibleNavItems = useMemo(
-    () => navItems.filter((item) => (isLoggedIn ? item.label !== "Login" : true)),
-    [isLoggedIn, navItems]
+    () =>
+      navItems.filter((item) => (isLoggedIn ? item.label !== "Login" : true)),
+    [isLoggedIn, navItems],
   );
 
   const listVariants = {
@@ -64,15 +84,9 @@ export function NavLinks() {
   };
 
   return (
-    <div className="bg-[#28a8af]/40 w-full">
+    <div className="sticky top-0 z-50 bg-[#28a8af]/40 w-full backdrop-blur-sm">
       <Navbar fluid rounded={false} className="bg-transparent px-6 py-4">
         <div className="flex flex-1 md:flex-none items-center justify-center md:justify-end gap-2 md:gap-4 md:order-2 md:ml-auto">
-          <input
-            type="text"
-            className="h-10 md:h-12 w-40 sm:w-50 md:w-45 lg:w-55 rounded-[45px] bg-[#5F4F4F]/30 placeholder:text-black text-white px-4 border-none focus:ring-0 focus:outline-none transition-all"
-            placeholder="Search..."
-          />
-
           {isLoggedIn ? (
             <Button
               size="xs"
@@ -90,26 +104,25 @@ export function NavLinks() {
         </div>
 
         <NavbarCollapse className="md:order-1">
-
           <motion.div
             variants={listVariants}
             initial="hidden"
             animate="show"
-            className="flex flex-row items-center justify-start md:justify-center gap-2 md:gap-4 py-4 md:py-0 w-full overflow-x-auto no-scrollbar"
+            className="flex flex-row items-center justify-start md:justify-center gap-2 md:gap-4 py-4 md:py-0 w-full overflow-x-auto md:overflow-x-visible no-scrollbar"
           >
             {visibleNavItems.map((item) => (
               <NavbarLink
                 key={item.path}
                 as={Link}
                 href={item.path}
-                className="p-0 border-none shrink-0" 
+                className="p-0 border-none shrink-0"
               >
                 <motion.div
                   variants={itemVariants}
-                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className={`flex flex-col items-center justify-center rounded-lg transition-colors p-2 ${
+                  className={`flex flex-col items-center justify-center rounded-lg transition-colors p-2 origin-center ${
                     pathname === item.path
                       ? "bg-black/10 border-b-2 border-black"
                       : "hover:bg-black/5"
@@ -132,16 +145,3 @@ export function NavLinks() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -24,6 +24,8 @@
     "Editprofile",
     "Eldersupport",
     "festdecor",
+    "mapbox",
+    "mapboxgl",
     "mapinterfaces",
     "maplocation",
     "mapnik",

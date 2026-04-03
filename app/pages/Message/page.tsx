@@ -143,6 +143,7 @@ function ChatContent() {
           &ldquo;A community is just a collection of shared hours.&rdquo;
         </p>
       </motion.div>
+      
     </div>
   );
 }
