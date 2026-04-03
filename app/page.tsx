@@ -2,7 +2,7 @@
 
 import { Inria_Serif } from 'next/font/google';
 import { useRouter } from "next/navigation";
-import React from "react";
+
 import { motion } from "framer-motion";
 
 const inriaSerif = Inria_Serif({
