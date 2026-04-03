@@ -1,5 +1,20 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## API Configuration
+
+Create a `.env.local` file at the project root and configure:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=https://your-new-webapp.azurewebsites.net
+NEXT_PUBLIC_BLOB_UPLOAD_ENDPOINT=https://your-new-webapp.azurewebsites.net/api/blob/upload
+```
+
+Notes:
+- `NEXT_PUBLIC_API_BASE_URL` is used for all existing auth/profile/discovery API calls.
+- Alias supported: `NEXT_PUBLIC_WEBAPP_API_URL`.
+- `NEXT_PUBLIC_BLOB_UPLOAD_ENDPOINT` is optional. If omitted, the app will try common upload routes under `NEXT_PUBLIC_API_BASE_URL`.
+- Aliases supported: `NEXT_PUBLIC_BLOB_UPLOAD_URL`, `NEXT_PUBLIC_BLOB_API_ENDPOINT`.
+
 ## Getting Started
 
 First, run the development server:

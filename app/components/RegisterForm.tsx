@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "flowbite-react";
 import { useRouter } from "next/navigation";
-import { checkToken, createAccount } from "@/lib/user-services";
+import { checkToken, createAccount, getApiBaseUrl } from "@/lib/user-services";
 import { motion } from "framer-motion";
 
 const RegisterPage = () => {
@@ -25,13 +25,17 @@ const RegisterPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const success = await createAccount(register);
+    try {
+      const success = await createAccount(register);
 
-    if (success) {
-      alert("Account Created! Please Sign In.");
-      push("/pages/Signin");
-    } else {
-      alert("Registration failed. Email might already exist.");
+      if (success) {
+        alert("Account Created! Please Sign In.");
+        push("/pages/Signin");
+      } else {
+        alert("Registration failed. Check API availability or whether account already exists.");
+      }
+    } catch {
+      alert(`Could not reach API at ${getApiBaseUrl()}.`);
     }
   };
 

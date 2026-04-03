@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "flowbite-react";
 import { useRouter } from "next/navigation";
-import { checkToken, login } from "@/lib/user-services";
+import { checkToken, getApiBaseUrl, login } from "@/lib/user-services";
 import { motion } from "framer-motion";
 
 const SigninPage = () => {
@@ -29,18 +29,22 @@ const SigninPage = () => {
     setIsSubmitting(true);
     setErrorMessage("");
 
-    const token = await login({
-      usernameOrEmail: signin.usernameOrEmail,
-      password: signin.password,
-    });
+    try {
+      const token = await login({
+        usernameOrEmail: signin.usernameOrEmail,
+        password: signin.password,
+      });
 
-    if (token) {
-      push("/pages/Edit");
-    } else {
-      setErrorMessage("Invalid credentials. Please try again.");
+      if (token) {
+        push("/pages/Edit");
+      } else {
+        setErrorMessage("Sign in failed. Check credentials or API availability.");
+      }
+    } catch {
+      setErrorMessage(`Could not reach API at ${getApiBaseUrl()}.`);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   const inputContainer =

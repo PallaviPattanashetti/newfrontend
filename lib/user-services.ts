@@ -1,8 +1,17 @@
 import { RegisterUser, Token, UserLogin } from "@/interfaces/userinterfaces";
 
-const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
+const RAW_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ??
+    process.env.NEXT_PUBLIC_WEBAPP_API_URL?.trim() ??
     "https://realtimebank-bahgerc2cwcrfdgb.westus3-01.azurewebsites.net";
+
+const BASE_URL = RAW_BASE_URL.replace(/\/+$/, "");
+
+const BLOB_UPLOAD_ENDPOINT =
+    process.env.NEXT_PUBLIC_BLOB_UPLOAD_ENDPOINT?.trim() ??
+    process.env.NEXT_PUBLIC_BLOB_UPLOAD_URL?.trim() ??
+    process.env.NEXT_PUBLIC_BLOB_API_ENDPOINT?.trim() ??
+    "";
 
 const TOKEN_STORAGE_KEY = "token";
 const USER_STORAGE_KEY = "user";
@@ -12,6 +21,15 @@ type ApiResponse<T> = {
     success?: boolean;
     message?: string;
 } & T;
+
+type BlobUploadResponse = {
+    success?: boolean;
+    url?: string;
+    imageUrl?: string;
+    blobUrl?: string;
+    profilePictureUrl?: string;
+    data?: Record<string, unknown>;
+};
 
 export type ProfilePayload = {
     name: string;
@@ -45,6 +63,21 @@ const parseJsonSafely = async <T>(res: Response): Promise<T | null> => {
         return null;
     }
 };
+
+const safeFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    try {
+        return await fetch(input, init);
+    } catch (error) {
+        console.error("API request failed", {
+            endpoint: String(input),
+            method: init?.method ?? "GET",
+            error,
+        });
+        return null;
+    }
+};
+
+export const getApiBaseUrl = () => BASE_URL;
 
 const getTokenExp = (token: string): number | null => {
     const parts = token.split(".");
@@ -121,11 +154,15 @@ export const createAccount = async (user: RegisterUser) => {
         password: user.password,
     };
 
-    const res = await fetch(`${BASE_URL}/api/user/register`, {
+    const res = await safeFetch(`${BASE_URL}/api/user/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
     });
+
+    if (!res) {
+        return false;
+    }
 
     const data = await parseJsonSafely<ApiResponse<Record<string, unknown>>>(res);
     return res.ok && Boolean(data?.success ?? true);
@@ -140,11 +177,15 @@ export const login = async (user: UserLogin) => {
         password: user.password,
     };
 
-    const res = await fetch(`${BASE_URL}/api/user/login`, {
+    const res = await safeFetch(`${BASE_URL}/api/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
     });
+
+    if (!res) {
+        return null;
+    }
 
     const data = await parseJsonSafely<Token>(res);
     if (!res.ok || !data?.token) {
@@ -156,9 +197,13 @@ export const login = async (user: UserLogin) => {
 };
 
 export const getUserByUsername = async (userEmail: string) => {
-    const res = await fetch(`${BASE_URL}/api/user/GetUserByUseremail/${encodeURIComponent(userEmail)}`, {
+    const res = await safeFetch(`${BASE_URL}/api/user/GetUserByUseremail/${encodeURIComponent(userEmail)}`, {
         headers: authHeaders(),
     });
+
+    if (!res) {
+        return null;
+    }
 
     if (!res.ok) {
         return null;
@@ -190,10 +235,14 @@ export const loggedInData = () => {
 };
 
 export const getProfile = async () => {
-    const res = await fetch(`${BASE_URL}/api/user/profile`, {
+    const res = await safeFetch(`${BASE_URL}/api/user/profile`, {
         method: "GET",
         headers: authHeaders(),
     });
+
+    if (!res) {
+        return null;
+    }
 
     if (!res.ok) {
         return null;
@@ -229,21 +278,29 @@ const wasSuccessfulResponse = async (res: Response) => {
 export const saveProfile = async (profile: ProfilePayload) => {
     const payload = buildProfilePayload(profile);
 
-    const putRes = await fetch(`${BASE_URL}/api/user/profile`, {
+    const putRes = await safeFetch(`${BASE_URL}/api/user/profile`, {
         method: "PUT",
         headers: authHeaders(),
         body: JSON.stringify(payload),
     });
 
+    if (!putRes) {
+        return false;
+    }
+
     if (await wasSuccessfulResponse(putRes)) {
         return true;
     }
 
-    const postRes = await fetch(`${BASE_URL}/api/user/profile`, {
+    const postRes = await safeFetch(`${BASE_URL}/api/user/profile`, {
         method: "POST",
         headers: authHeaders(),
         body: JSON.stringify(payload),
     });
+
+    if (!postRes) {
+        return false;
+    }
 
     return await wasSuccessfulResponse(postRes);
 };
@@ -306,6 +363,94 @@ const collectObjects = (value: unknown): Record<string, unknown>[] => {
     }
 
     return result;
+};
+
+const getBlobUploadCandidates = () => {
+    const candidates = [
+        BLOB_UPLOAD_ENDPOINT,
+        `${BASE_URL}/api/user/profile-picture`,
+        `${BASE_URL}/api/blob/upload`,
+        `${BASE_URL}/api/blobstorage/upload`,
+        `${BASE_URL}/api/image/upload`,
+        `${BASE_URL}/api/images/upload`,
+        `${BASE_URL}/api/user/profile-image/upload`,
+    ];
+
+    return [...new Set(candidates.map((value) => value.trim()).filter(Boolean))];
+};
+
+const extractImageUrlFromPayload = (payload: unknown): string => {
+    const objects = collectObjects(payload);
+
+    for (const item of objects) {
+        const direct = pickText(item, [
+            "url",
+            "imageUrl",
+            "blobUrl",
+            "blobUri",
+            "profilePictureUrl",
+            "fileUrl",
+            "absoluteUrl",
+            "absoluteUri",
+            "publicUrl",
+            "uri",
+            "location",
+        ]);
+
+        if (isValidImageUrl(direct)) {
+            return direct;
+        }
+    }
+
+    return "";
+};
+
+export const uploadProfileImage = async (file: File): Promise<string | null> => {
+    const endpoints = getBlobUploadCandidates();
+    if (endpoints.length === 0) {
+        return null;
+    }
+
+    const token = getToken();
+    const uploadFieldNames = ["file", "image", "profileImage", "profilePicture", "upload"];
+
+    for (const endpoint of endpoints) {
+        for (const fieldName of uploadFieldNames) {
+            const formData = new FormData();
+            formData.append(fieldName, file);
+
+            const headers: HeadersInit = {};
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+
+            try {
+                const res = await safeFetch(endpoint, {
+                    method: "POST",
+                    headers,
+                    body: formData,
+                });
+
+                if (!res) {
+                    continue;
+                }
+
+                if (!res.ok) {
+                    continue;
+                }
+
+                const payload = await parseJsonSafely<BlobUploadResponse | Record<string, unknown>>(res);
+                const imageUrl = extractImageUrlFromPayload(payload);
+                if (imageUrl) {
+                    return imageUrl;
+                }
+            } catch {
+                // Ignore candidate endpoint failures and try the next endpoint.
+            }
+        }
+    }
+
+    return null;
 };
 
 const toDiscoverableProfile = (obj: Record<string, unknown>): DiscoverableProfile | null => {
@@ -406,10 +551,14 @@ const getProfilesPayload = async (options: ProfilesQueryOptions = {}) => {
         ? `${BASE_URL}/api/user/profiles?${query}`
         : `${BASE_URL}/api/user/profiles`;
 
-    const res = await fetch(endpoint, {
+    const res = await safeFetch(endpoint, {
         method: "GET",
         headers: authHeaders(),
     });
+
+    if (!res) {
+        return null;
+    }
 
     if (!res.ok) {
         return null;

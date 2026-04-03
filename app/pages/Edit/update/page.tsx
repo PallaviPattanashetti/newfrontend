@@ -1,11 +1,12 @@
 "use client";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { checkToken, getProfile, saveProfile } from "@/lib/user-services";
+import { checkToken, getProfile, saveProfile, uploadProfileImage } from "@/lib/user-services";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 const DEFAULT_IMAGE = "/assets/UserAccounts.jpeg";
+const ALLOWED_UPLOAD_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const isSafeImageSrc = (value: string): boolean => {
   const trimmed = value.trim();
@@ -39,6 +40,7 @@ export default function UpdateProfilePage() {
   const [name, setName] = useState<string>("");
   const [bio, setBio] = useState<string>("");
   const [image, setImage] = useState<string>(DEFAULT_IMAGE);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [imageUrlInput, setImageUrlInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -59,6 +61,7 @@ export default function UpdateProfilePage() {
       setName(resolvedName || "");
       setBio(resolvedBio || "");
       setImage(resolvedImage || DEFAULT_IMAGE);
+      setSelectedImageFile(null);
       setImageUrlInput(
         resolvedImage && !resolvedImage.startsWith("data:") ? resolvedImage : ""
       );
@@ -72,6 +75,11 @@ export default function UpdateProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!ALLOWED_UPLOAD_MIME_TYPES.includes(file.type)) {
+      setStatusMessage("Only JPEG, PNG, and WEBP are supported.");
+      return;
+    }
+
     if (file.size > 2 * 1024 * 1024) {
       setStatusMessage("Please choose an image smaller than 2MB for now.");
       return;
@@ -81,6 +89,7 @@ export default function UpdateProfilePage() {
     reader.onloadend = () => {
       const dataUrl = reader.result as string;
       setImage(dataUrl);
+      setSelectedImageFile(file);
       setImageUrlInput("");
       setStatusMessage("Image attached. Save changes to persist it.");
     };
@@ -89,6 +98,7 @@ export default function UpdateProfilePage() {
 
   const handleImageUrlChange = (nextValue: string) => {
     setImageUrlInput(nextValue);
+    setSelectedImageFile(null);
 
     const trimmed = nextValue.trim();
     if (!trimmed) {
@@ -110,10 +120,25 @@ export default function UpdateProfilePage() {
     setIsSaving(true);
     setStatusMessage("");
 
+    let profilePictureUrl = toSafeImageSrc(image);
+
+    if (selectedImageFile) {
+      setStatusMessage("Uploading image to blob storage...");
+      const uploadedImageUrl = await uploadProfileImage(selectedImageFile);
+
+      if (uploadedImageUrl) {
+        profilePictureUrl = uploadedImageUrl;
+      } else {
+        setIsSaving(false);
+        setStatusMessage("Image upload failed. Verify blob upload endpoint route, form field name, and response URL key.");
+        return;
+      }
+    }
+
     const success = await saveProfile({
       name: name.trim(),
       bio: bio.trim(),
-      profilePictureUrl: toSafeImageSrc(image),
+      profilePictureUrl,
     });
 
     setIsSaving(false);
@@ -123,7 +148,7 @@ export default function UpdateProfilePage() {
       return;
     }
 
-    setStatusMessage("Could not save profile. Please verify your API DTO field names.");
+    setStatusMessage("Could not save profile. Verify API DTO names and blob upload endpoint configuration.");
   };
 
   if (isLoading) {
@@ -175,7 +200,7 @@ export default function UpdateProfilePage() {
               type="file"
               className="hidden"
               onChange={handleImage}
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
             />
           </label>
         </div>
