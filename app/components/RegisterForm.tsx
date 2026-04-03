@@ -84,10 +84,10 @@ const RegisterPage = () => {
 
         <Button type="submit" className="w-full">Create Account</Button>
 
-        <p className="mt-4">
+        <p className="mt-4 text-black">
           Already have an account?
           <span
-            className="underline ml-2 cursor-pointer"
+            className="underline ml-2 cursor-pointer text-blue-600"
             onClick={() => push("/pages/Signin")}
           >
             Sign In
