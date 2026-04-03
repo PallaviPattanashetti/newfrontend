@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import {
   DiscoverableProfile,
-  ProfilesQueryOptions,
   checkToken,
+  getProfile,
   getDiscoverableProfiles,
 } from "@/lib/user-services";
 import { useRouter } from "next/navigation";
@@ -26,11 +26,56 @@ const isSafeImageSrc = (value: string): boolean => {
   }
 };
 
+const toKey = (value: unknown) =>
+  typeof value === "string" ? value.trim().toLowerCase() : "";
+
+const getCurrentUserIdentityKeys = (profile: Record<string, unknown> | null) => {
+  if (!profile) {
+    return [] as string[];
+  }
+
+  const candidates = [
+    profile.id,
+    profile.userId,
+    profile.profileId,
+    profile.username,
+    profile.userName,
+    profile.loginName,
+    profile.email,
+    profile.userEmail,
+    profile.name,
+    profile.displayName,
+    profile.fullName,
+    profile.profileName,
+  ];
+
+  const keys = candidates
+    .map((value) => toKey(value))
+    .filter((value) => Boolean(value));
+
+  return [...new Set(keys)];
+};
+
+const filterOutCurrentUser = (
+  profiles: DiscoverableProfile[],
+  identityKeys: string[],
+) => {
+  if (identityKeys.length === 0) {
+    return profiles;
+  }
+
+  return profiles.filter((profile) => {
+    const profileKeys = [toKey(profile.id), toKey(profile.profileName)].filter(Boolean);
+    return !profileKeys.some((key) => identityKeys.includes(key));
+  });
+};
+
 export default function People() {
   const { push } = useRouter();
   const [visibleProfiles, setVisibleProfiles] = useState<DiscoverableProfile[]>(
     [],
   );
+  const [currentUserKeys, setCurrentUserKeys] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [locationCoords, setLocationCoords] = useState<{
     lat: number;
@@ -41,15 +86,6 @@ export default function People() {
   const [error, setError] = useState("");
 
   const hasQuery = useMemo(() => searchTerm.trim().length > 0, [searchTerm]);
-
-  const loadProfiles = async (
-    nameQuery: string,
-    options: ProfilesQueryOptions = {},
-  ) => {
-    setError("");
-    const profiles = await getDiscoverableProfiles(nameQuery, options);
-    setVisibleProfiles(profiles);
-  };
 
   const requestLocation = () =>
     new Promise<{ lat: number; long: number } | null>((resolve) => {
@@ -88,10 +124,15 @@ export default function People() {
 
       setIsLoading(true);
 
+      const currentProfile = await getProfile();
+      const identityKeys = getCurrentUserIdentityKeys(currentProfile);
+      setCurrentUserKeys(identityKeys);
+
       const coords = await requestLocation();
       setLocationCoords(coords);
 
-      await loadProfiles("", {
+      setError("");
+      const profiles = await getDiscoverableProfiles("", {
         skip: 0,
         take: 6,
         random: false,
@@ -99,6 +140,7 @@ export default function People() {
         latitude: coords?.lat,
         longitude: coords?.long,
       });
+      setVisibleProfiles(filterOutCurrentUser(profiles, identityKeys));
 
       setIsLoading(false);
     };
@@ -113,7 +155,8 @@ export default function People() {
       }
 
       setIsRefreshing(true);
-      await loadProfiles(searchTerm, {
+      setError("");
+      const profiles = await getDiscoverableProfiles(searchTerm, {
         skip: 0,
         take: searchTerm.trim() ? 20 : 6,
         random: false,
@@ -121,20 +164,23 @@ export default function People() {
         latitude: locationCoords?.lat,
         longitude: locationCoords?.long,
       });
+      setVisibleProfiles(filterOutCurrentUser(profiles, currentUserKeys));
       setIsRefreshing(false);
     }, 280);
 
     return () => window.clearTimeout(debounceId);
-  }, [searchTerm, isLoading, locationCoords]);
+  }, [searchTerm, isLoading, locationCoords, currentUserKeys]);
 
   const refreshRandomUsers = async () => {
     setIsRefreshing(true);
-    await loadProfiles("", {
+    setError("");
+    const profiles = await getDiscoverableProfiles("", {
       skip: 0,
       take: 6,
       random: true,
       onlyComplete: true,
     });
+    setVisibleProfiles(filterOutCurrentUser(profiles, currentUserKeys));
     setIsRefreshing(false);
   };
 
