@@ -18,7 +18,7 @@ const RegisterPage = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      push("/pages/HelpCategory");
+      push("/pages/Edit");
     }
   }, [isLoggedIn, push]);
 

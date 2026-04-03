@@ -33,21 +33,41 @@ export function NavLinks() {
     push("/pages/Signin");
   };
 
-  const navItems = useMemo(() => [
-    { icon: "/assets/Home.gif", label: "Home", path: "/" },
-    { icon: "/assets/logIn.gif", label: "Login", path: "/pages/Register" },
-    { icon: "/assets/Edit.gif", label: "Profile", path: "/pages/Edit" },
-     { icon: "/assets/HelpCategory.gif", label: "Categories", path: "/pages/HelpCategory" },
-    { icon: "/assets/User.gif", label: "Nearby Users", path: "/pages/People" },
-   
-    { icon: "/assets/Message.gif", label: "Messages", path: "/pages/Message" },
-    { icon: "/assets/AnimatedCredit.gif", label: "Credits", path: "/pages/Credit" },
-    { icon: "/assets/Map.gif", label: "Maps", path: "/pages/GoogleMap" },
-  ], []);
+  const navItems = useMemo(
+    () => [
+      { icon: "/assets/Home.gif", label: "Home", path: "/" },
+      { icon: "/assets/logIn.gif", label: "Login", path: "/pages/Register" },
+      { icon: "/assets/Edit.gif", label: "Profile", path: "/pages/Edit" },
+      {
+        icon: "/assets/User.gif",
+        label: "Nearby Users",
+        path: "/pages/People",
+      },
+      {
+        icon: "/assets/HelpCategory.gif",
+        label: "Categories",
+        path: "/pages/HelpCategory",
+      },
+
+      {
+        icon: "/assets/Message.gif",
+        label: "Messages",
+        path: "/pages/Message",
+      },
+      {
+        icon: "/assets/AnimatedCredit.gif",
+        label: "Credits",
+        path: "/pages/Credit",
+      },
+      { icon: "/assets/Map.gif", label: "Maps", path: "/pages/GoogleMap" },
+    ],
+    [],
+  );
 
   const visibleNavItems = useMemo(
-    () => navItems.filter((item) => (isLoggedIn ? item.label !== "Login" : true)),
-    [isLoggedIn, navItems]
+    () =>
+      navItems.filter((item) => (isLoggedIn ? item.label !== "Login" : true)),
+    [isLoggedIn, navItems],
   );
 
   const listVariants = {
@@ -67,7 +87,6 @@ export function NavLinks() {
     <div className="sticky top-0 z-50 bg-[#28a8af]/40 w-full backdrop-blur-sm">
       <Navbar fluid rounded={false} className="bg-transparent px-6 py-4">
         <div className="flex flex-1 md:flex-none items-center justify-center md:justify-end gap-2 md:gap-4 md:order-2 md:ml-auto">
-
           {isLoggedIn ? (
             <Button
               size="xs"
@@ -85,7 +104,6 @@ export function NavLinks() {
         </div>
 
         <NavbarCollapse className="md:order-1">
-
           <motion.div
             variants={listVariants}
             initial="hidden"
@@ -97,7 +115,7 @@ export function NavLinks() {
                 key={item.path}
                 as={Link}
                 href={item.path}
-                className="p-0 border-none shrink-0" 
+                className="p-0 border-none shrink-0"
               >
                 <motion.div
                   variants={itemVariants}
@@ -127,16 +145,3 @@ export function NavLinks() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

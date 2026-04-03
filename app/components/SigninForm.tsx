@@ -20,7 +20,7 @@ const SigninPage = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      push("/pages/HelpCategory");
+      push("/pages/Edit");
     }
   }, [isLoggedIn, push]);
 
@@ -35,7 +35,7 @@ const SigninPage = () => {
     });
 
     if (token) {
-      push("/pages/HelpCategory");
+      push("/pages/Edit");
     } else {
       setErrorMessage("Invalid credentials. Please try again.");
     }

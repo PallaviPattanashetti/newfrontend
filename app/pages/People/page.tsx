@@ -28,16 +28,24 @@ const isSafeImageSrc = (value: string): boolean => {
 
 export default function People() {
   const { push } = useRouter();
-  const [visibleProfiles, setVisibleProfiles] = useState<DiscoverableProfile[]>([]);
+  const [visibleProfiles, setVisibleProfiles] = useState<DiscoverableProfile[]>(
+    [],
+  );
   const [searchTerm, setSearchTerm] = useState("");
-  const [locationCoords, setLocationCoords] = useState<{ lat: number; long: number } | null>(null);
+  const [locationCoords, setLocationCoords] = useState<{
+    lat: number;
+    long: number;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
 
   const hasQuery = useMemo(() => searchTerm.trim().length > 0, [searchTerm]);
 
-  const loadProfiles = async (nameQuery: string, options: ProfilesQueryOptions = {}) => {
+  const loadProfiles = async (
+    nameQuery: string,
+    options: ProfilesQueryOptions = {},
+  ) => {
     setError("");
     const profiles = await getDiscoverableProfiles(nameQuery, options);
     setVisibleProfiles(profiles);
@@ -58,12 +66,16 @@ export default function People() {
           };
           localStorage.setItem(
             "user-location",
-            JSON.stringify({ ...snapshot, accuracy: position.coords.accuracy, capturedAt: Date.now() })
+            JSON.stringify({
+              ...snapshot,
+              accuracy: position.coords.accuracy,
+              capturedAt: Date.now(),
+            }),
           );
           resolve(snapshot);
         },
         () => resolve(null),
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 },
       );
     });
 
@@ -130,7 +142,10 @@ export default function People() {
     return (
       <div
         className="min-h-screen flex items-center justify-center text-white font-bold"
-        style={{ backgroundImage: "url('/assets/TBBackround.jpeg')", backgroundSize: "cover" }}
+        style={{
+          backgroundImage: "url('/assets/TBBackround.jpeg')",
+          backgroundSize: "cover",
+        }}
       >
         Loading nearby users...
       </div>
@@ -165,7 +180,9 @@ export default function People() {
       </div>
 
       {error ? (
-        <p className="text-red-100 bg-black/30 px-4 py-2 rounded-xl mb-4">{error}</p>
+        <p className="text-red-100 bg-black/30 px-4 py-2 rounded-xl mb-4">
+          {error}
+        </p>
       ) : null}
 
       {isRefreshing ? (
@@ -190,7 +207,11 @@ export default function People() {
               <div className="flex flex-col items-center space-y-3 shrink-0 w-32">
                 <div className="relative w-20 h-20 rounded-full border-2 border-[#28a8af] p-1 shadow-sm bg-white/70 overflow-hidden">
                   <Image
-                    src={isSafeImageSrc(person.profilePictureUrl) ? person.profilePictureUrl : DEFAULT_IMAGE}
+                    src={
+                      isSafeImageSrc(person.profilePictureUrl)
+                        ? person.profilePictureUrl
+                        : DEFAULT_IMAGE
+                    }
                     alt={person.profileName}
                     fill
                     unoptimized
