@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 
 export default function HelpSection() {
   return (
@@ -65,7 +66,16 @@ export default function HelpSection() {
 
 
         </div>
+        
       </div>
+      <div
+          
+          className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center"
+        >
+          <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
+            &ldquo;Redefining wealth, one hour at a time.&rdquo;
+          </p>
+        </div>
     </div>
   );
 }
