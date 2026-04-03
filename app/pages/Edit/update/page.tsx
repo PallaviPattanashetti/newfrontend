@@ -167,7 +167,7 @@ export default function UpdateProfilePage() {
       >
         <div className="relative">
           <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-            <Image src={toSafeImageSrc(image)} alt="Profile" fill sizes="128px" className="object-cover" />
+            <Image src={toSafeImageSrc(image)} alt="Profile" fill sizes="128px" unoptimized className="object-cover" />
           </div>
           <label className="absolute bottom-0 right-0 bg-[#28a8af] text-white w-10 h-10 rounded-full flex items-center justify-center border-4 border-white cursor-pointer shadow-xl hover:scale-110 transition-transform active:scale-95">
             <span className="text-2xl font-bold">+</span>

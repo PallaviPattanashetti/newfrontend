@@ -104,7 +104,7 @@ export default function ProfilePage() {
         className="bg-white/30 backdrop-blur-md p-8 rounded-2xl shadow-md mb-4 w-full max-w-md flex flex-col items-center border border-white/20"
       >
         <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-          <Image src={toSafeImageSrc(image)} alt="Profile" fill sizes="128px" className="object-cover" />
+          <Image src={toSafeImageSrc(image)} alt="Profile" fill sizes="128px" unoptimized className="object-cover" />
         </div>
         <p className="mt-4 text-xs font-black text-black uppercase tracking-[0.2em]">Profile Picture</p>
       </motion.div>

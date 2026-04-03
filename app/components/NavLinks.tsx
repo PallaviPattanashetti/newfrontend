@@ -38,7 +38,7 @@ export function NavLinks() {
     { icon: "/assets/logIn.gif", label: "Login", path: "/pages/Register" },
     { icon: "/assets/Edit.gif", label: "Profile", path: "/pages/Edit" },
      { icon: "/assets/HelpCategory.gif", label: "Categories", path: "/pages/HelpCategory" },
-    { icon: "/assets/User.gif", label: "UserAccount", path: "/pages/People" },
+    { icon: "/assets/User.gif", label: "Nearby Users", path: "/pages/People" },
    
     { icon: "/assets/Message.gif", label: "Messages", path: "/pages/Message" },
     { icon: "/assets/AnimatedCredit.gif", label: "Credits", path: "/pages/Credit" },
@@ -64,14 +64,9 @@ export function NavLinks() {
   };
 
   return (
-    <div className="bg-[#28a8af]/40 w-full">
+    <div className="sticky top-0 z-50 bg-[#28a8af]/40 w-full backdrop-blur-sm">
       <Navbar fluid rounded={false} className="bg-transparent px-6 py-4">
         <div className="flex flex-1 md:flex-none items-center justify-center md:justify-end gap-2 md:gap-4 md:order-2 md:ml-auto">
-          <input
-            type="text"
-            className="h-10 md:h-12 w-40 sm:w-50 md:w-45 lg:w-55 rounded-[45px] bg-[#5F4F4F]/30 placeholder:text-black text-white px-4 border-none focus:ring-0 focus:outline-none transition-all"
-            placeholder="Search..."
-          />
 
           {isLoggedIn ? (
             <Button
@@ -95,7 +90,7 @@ export function NavLinks() {
             variants={listVariants}
             initial="hidden"
             animate="show"
-            className="flex flex-row items-center justify-start md:justify-center gap-2 md:gap-4 py-4 md:py-0 w-full overflow-x-auto no-scrollbar"
+            className="flex flex-row items-center justify-start md:justify-center gap-2 md:gap-4 py-4 md:py-0 w-full overflow-x-auto md:overflow-x-visible no-scrollbar"
           >
             {visibleNavItems.map((item) => (
               <NavbarLink
@@ -106,10 +101,10 @@ export function NavLinks() {
               >
                 <motion.div
                   variants={itemVariants}
-                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className={`flex flex-col items-center justify-center rounded-lg transition-colors p-2 ${
+                  className={`flex flex-col items-center justify-center rounded-lg transition-colors p-2 origin-center ${
                     pathname === item.path
                       ? "bg-black/10 border-b-2 border-black"
                       : "hover:bg-black/5"
