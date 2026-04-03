@@ -13,6 +13,12 @@ type ApiResponse<T> = {
     message?: string;
 } & T;
 
+export type ProfilePayload = {
+    name: string;
+    bio: string;
+    profilePictureUrl: string;
+};
+
 const parseJsonSafely = async <T>(res: Response): Promise<T | null> => {
     try {
         return (await res.json()) as T;
@@ -162,4 +168,63 @@ export const loggedInData = () => {
     } catch {
         return null;
     }
+};
+
+export const getProfile = async () => {
+    const res = await fetch(`${BASE_URL}/api/user/profile`, {
+        method: "GET",
+        headers: authHeaders(),
+    });
+
+    if (!res.ok) {
+        return null;
+    }
+
+    return await parseJsonSafely<Record<string, unknown>>(res);
+};
+
+const buildProfilePayload = (profile: ProfilePayload) => ({
+    name: profile.name,
+    displayName: profile.name,
+    bio: profile.bio,
+    aboutMe: profile.bio,
+    description: profile.bio,
+    profileDescription: profile.bio,
+    profilePictureUrl: profile.profilePictureUrl,
+    imageUrl: profile.profilePictureUrl,
+});
+
+const wasSuccessfulResponse = async (res: Response) => {
+    if (!res.ok) {
+        return false;
+    }
+
+    const data = await parseJsonSafely<ApiResponse<Record<string, unknown>>>(res);
+    if (data && typeof data.success === "boolean") {
+        return data.success;
+    }
+
+    return true;
+};
+
+export const saveProfile = async (profile: ProfilePayload) => {
+    const payload = buildProfilePayload(profile);
+
+    const putRes = await fetch(`${BASE_URL}/api/user/profile`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify(payload),
+    });
+
+    if (await wasSuccessfulResponse(putRes)) {
+        return true;
+    }
+
+    const postRes = await fetch(`${BASE_URL}/api/user/profile`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(payload),
+    });
+
+    return await wasSuccessfulResponse(postRes);
 };

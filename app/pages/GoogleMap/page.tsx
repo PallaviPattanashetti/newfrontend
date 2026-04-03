@@ -128,27 +128,23 @@
 "use client";
 
 import { useMapLocation } from "@/context/context";
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function VolunteerMap() {
   const { maplocation } = useMapLocation();
-  
-  const [showDetails, setShowDetails] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const [dismissedLocationKey, setDismissedLocationKey] = useState<string | null>(null);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const mapSrc = maplocation
+    ? `https://maps.google.com/maps?q=${maplocation.lat},${maplocation.long}&z=15&output=embed`
+    : null;
 
+  const activeLocationKey = useMemo(
+    () => (maplocation ? `${maplocation.id}-${maplocation.lat}-${maplocation.long}` : null),
+    [maplocation]
+  );
 
-  useEffect(() => {
-    if (maplocation) {
-      setShowDetails(true);
-    }
-  }, [maplocation]);
-
-  if (!isMounted) return null;
+  const showDetails = Boolean(activeLocationKey && dismissedLocationKey !== activeLocationKey);
 
   return (
     <div 
@@ -167,13 +163,19 @@ export default function VolunteerMap() {
       </motion.div>
 
       <div className="w-full max-w-5xl h-80 border-8 border-white rounded-4xl overflow-hidden shadow-xl bg-white mt-6">
-        <iframe
-          title="Volunteer Location"
-          width="100%"
-          height="100%"
-          src={maplocation ? `https://maps.google.com/maps?q=${maplocation.lat},${maplocation.long}&z=15&output=embed` : ""}
-          className="grayscale-30 contrast-110"
-        />
+        {mapSrc ? (
+          <iframe
+            title="Volunteer Location"
+            width="100%"
+            height="100%"
+            src={mapSrc}
+            className="grayscale-30 contrast-110"
+          />
+        ) : (
+          <div className="h-full w-full flex items-center justify-center text-center text-zinc-500 font-semibold px-6">
+            No location selected yet. Choose a volunteer first to load the map.
+          </div>
+        )}
       </div>
 
       <AnimatePresence>
@@ -192,7 +194,7 @@ export default function VolunteerMap() {
               </div>
               
               <button 
-                onClick={() => setShowDetails(false)}
+                onClick={() => setDismissedLocationKey(activeLocationKey)}
                 className="px-6 py-2 border-2 border-black rounded-xl hover:bg-black hover:text-white transition-all"
               >
                 Close
