@@ -1,11 +1,20 @@
 import { RegisterUser, Token, UserLogin } from "@/interfaces/userinterfaces";
 
+const DEFAULT_API_BASE_URL = "https://tbtest-hpa0bagng7azd3cc.westus3-01.azurewebsites.net";
+
 const RAW_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ??
     process.env.NEXT_PUBLIC_WEBAPP_API_URL?.trim() ??
-    "https://realtimebank-bahgerc2cwcrfdgb.westus3-01.azurewebsites.net";
+    DEFAULT_API_BASE_URL;
 
 const BASE_URL = RAW_BASE_URL.replace(/\/+$/, "");
+
+if (!process.env.NEXT_PUBLIC_API_BASE_URL?.trim() && !process.env.NEXT_PUBLIC_WEBAPP_API_URL?.trim()) {
+    console.warn(
+        `NEXT_PUBLIC_API_BASE_URL is not set. Falling back to ${DEFAULT_API_BASE_URL}. ` +
+            "Set the variable in your deployment environment to avoid build-time mismatches."
+    );
+}
 
 const BLOB_UPLOAD_ENDPOINT =
     process.env.NEXT_PUBLIC_BLOB_UPLOAD_ENDPOINT?.trim() ??
