@@ -36,7 +36,7 @@ export function NavLinks() {
   const navItems = useMemo(
     () => [
       { icon: "/assets/Home.gif", label: "Home", path: "/" },
-      { icon: "/assets/logIn.gif", label: "Login", path: "/pages/Register" },
+      { icon: "/assets/LogIn.gif", label: "Login", path: "/pages/Register" },
       { icon: "/assets/Edit.gif", label: "Profile", path: "/pages/Edit" },
       {
         icon: "/assets/User.gif",
