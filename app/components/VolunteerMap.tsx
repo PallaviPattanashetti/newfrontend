@@ -37,7 +37,15 @@ export default function VolunteerMap() {
         zoom: 12,
       
         trackResize: true,
+
+
+        
+
       });
+
+
+
+
 
       map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
     } catch (e) {

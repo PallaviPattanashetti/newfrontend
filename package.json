@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@mapbox/mapbox-gl-geocoder": "^5.1.2",
     "flowbite-react": "^0.12.17",
     "framer-motion": "^12.38.0",
     "mapbox-gl": "^3.21.0",

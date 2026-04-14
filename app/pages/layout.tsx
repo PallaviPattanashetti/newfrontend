@@ -10,8 +10,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
         <MapLocationProvider> 
           <div className="flex flex-col min-h-screen">
             <NavLinks/>
@@ -20,7 +18,5 @@ export default function RootLayout({
             </main>
           </div>
         </MapLocationProvider>
-      </body>
-    </html>
   );
 }
