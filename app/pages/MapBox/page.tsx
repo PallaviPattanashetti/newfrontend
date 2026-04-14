@@ -36,6 +36,8 @@ export default async function MapPage() {
           ))}
         </div>
       </div>
+
+      
     </main>
   );
 }

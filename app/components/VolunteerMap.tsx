@@ -5,8 +5,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import mapboxgl from "mapbox-gl";
 import { useMapLocation } from "@/context/context";
-import { SearchBox } from "@mapbox/search-js-react"; 
+
 import "mapbox-gl/dist/mapbox-gl.css";
+import { SearchBox } from "@mapbox/search-js-react";
+
 
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
