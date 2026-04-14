@@ -2,6 +2,7 @@
 import VolunteerMap from "@/app/components/VolunteerMap";
 import { fetchMapLocation } from "@/lib/mapServices";
 import { Metadata } from "next";
+import mapboxgl from "mapbox-gl";
 
 export const metadata: Metadata = {
   title: "TimeBank | Find Volunteers",

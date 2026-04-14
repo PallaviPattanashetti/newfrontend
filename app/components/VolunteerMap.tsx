@@ -4,6 +4,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import mapboxgl from "mapbox-gl";
 import { useMapLocation } from "@/context/context";
+import  '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+// import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import { SearchBox } from "@mapbox/search-js-react";
 
 
 
@@ -30,21 +33,32 @@ export default function VolunteerMap() {
     if (!isMounted || !mapContainer.current || map.current) return;
     
     try {
+
+
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: "mapbox://styles/mapbox/light-v11",
         center: [-121.216, 37.797],
         zoom: 12,
-      
         trackResize: true,
-
-
-        
-
       });
+      
+// const map = new mapboxgl.Map({
+//   container: 'map',
+//   style: 'mapbox://styles/mapbox/streets-v12',
+//   center: [-122.33, 47.6],
+//   zoom: 9
+// });
 
-
-
+// // // Add search box
+// map.addControl(
+//   new MapboxGeocoder({
+//     accessToken: mapboxgl.accessToken,
+//     mapboxgl: mapboxgl,
+//     marker: true,
+//     placeholder: "Search for places"
+//   })
+// );
 
 
       map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
@@ -88,6 +102,7 @@ export default function VolunteerMap() {
 
   if (!isMounted) return null;
 
+
   return (
     <div
       className="min-h-screen bg-cover bg-center flex flex-col items-center p-4 md:p-8"
@@ -102,6 +117,21 @@ export default function VolunteerMap() {
           Find Here
         </h1>
       </motion.div>
+
+
+
+
+<div className="w-full max-w-lg flex flex-col items-center mb-4">
+    <SearchBox
+      accessToken={mapboxgl.accessToken!}
+      options={{
+        language: 'en',
+        country: 'US'
+      }}
+    />
+   
+</div>
+
 
     
       <div className="w-full max-w-5xl h-96 border-8 border-white rounded-[2.5rem] overflow-hidden shadow-2xl bg-white relative z-10">
@@ -142,3 +172,4 @@ export default function VolunteerMap() {
     </div>
   );
 }
+
