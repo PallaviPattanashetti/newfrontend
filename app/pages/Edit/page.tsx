@@ -128,6 +128,13 @@ export default function ProfilePage() {
         <p className="w-full p-3 bg-white/60 border-none rounded-xl text-gray-800 font-bold">
           {profileName}
         </p>
+
+        <label className="block text-[10px] font-black text-black uppercase mb-2 ml-1 mt-4 tracking-[0.2em]">
+          Your City
+        </label>
+        <p className="w-full p-3 bg-white/60 border-none rounded-xl text-gray-800 font-bold">
+         
+        </p>
       </motion.div>
 
       <motion.div
