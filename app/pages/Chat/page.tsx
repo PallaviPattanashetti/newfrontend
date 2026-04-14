@@ -89,8 +89,6 @@ export default function ChatPage() {
         </div>
       </div>
 
-     
-
       <div>
         <p className="text-[40px] mt-10 text-black text-center">
           A community is just a collection of shared hours.

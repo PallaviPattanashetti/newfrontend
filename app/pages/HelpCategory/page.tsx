@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { NavLinks } from "@/app/components/NavLinks";
 
 export default function HelpCategory() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function HelpCategory() {
       className="min-h-screen bg-cover bg-center flex flex-col items-center p-4"
       style={{ backgroundImage: "url('/assets/TBBackround.jpeg')" }}
     >
+      
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

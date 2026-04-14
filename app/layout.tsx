@@ -31,9 +31,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
        <MapLocationProvider>
-          {children}
+         <body className="min-h-full flex flex-col">{children}</body>
         </MapLocationProvider>
-      <body className="min-h-full flex flex-col">{children}</body>
+      
     </html>
   );
 }
