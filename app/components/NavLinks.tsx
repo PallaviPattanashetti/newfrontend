@@ -59,7 +59,7 @@ export function NavLinks() {
         label: "Credits",
         path: "/pages/Credit",
       },
-      { icon: "/assets/Map.gif", label: "Maps", path: "/pages/GoogleMap" },
+      { icon: "/assets/Map.gif", label: "Maps", path: "/pages/MapBox" },
     ],
     [],
   );
