@@ -5,6 +5,7 @@ import { checkToken, getProfile } from "@/lib/user-services";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+
 const DEFAULT_IMAGE = "/assets/UserAccounts.jpeg";
 
 const isSafeImageSrc = (value: string): boolean => {
@@ -77,6 +78,7 @@ export default function ProfilePage() {
         className="min-h-screen flex items-center justify-center text-white font-bold"
         style={{ backgroundImage: "url('/assets/TBBackround.jpeg')", backgroundSize: "cover" }}
       >
+       
         Loading profile...
       </div>
     );

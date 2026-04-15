@@ -5,6 +5,7 @@ import { checkToken, getProfile, saveProfile, uploadProfileImage } from "@/lib/u
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+
 const DEFAULT_IMAGE = "/assets/UserAccounts.jpeg";
 const ALLOWED_UPLOAD_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -156,7 +157,7 @@ export default function UpdateProfilePage() {
       <div
         className="min-h-screen flex items-center justify-center text-white font-bold"
         style={{ backgroundImage: "url('/assets/TBBackround.jpeg')", backgroundSize: "cover" }}
-      >
+      > 
         Loading profile...
       </div>
     );
