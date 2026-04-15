@@ -285,6 +285,16 @@ export default function People() {
           ))
         )}
       </div>
+     
+        <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+            >
+              <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
+                &ldquo; "Time is the longest distance between two people—let’s bridge it."&rdquo;
+              </p>
+            </motion.div>
     </div>
   );
 }

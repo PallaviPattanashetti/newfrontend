@@ -254,6 +254,15 @@ export default function UpdateProfilePage() {
           <p className="mt-4 text-sm text-black/80 text-center">{statusMessage}</p>
         ) : null}
       </motion.div>
+      <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+            >
+              <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
+                &ldquo;"The best way to find yourself is to lose yourself in the service of others."&rdquo;
+              </p>
+            </motion.div>
     </div>
   );
 }
