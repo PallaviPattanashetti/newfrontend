@@ -1,15 +1,15 @@
 
 "use client";
-
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion} from "framer-motion";
 import mapboxgl from "mapbox-gl";
 import { useMapLocation } from "@/context/context";
-
 import "mapbox-gl/dist/mapbox-gl.css";
-import { SearchBox } from "@mapbox/search-js-react";
 
 
+import dynamic from "next/dynamic";
+
+const SearchBox = dynamic(() => import("@mapbox/search-js-react").then((mod) => mod.SearchBox ), { ssr: false });
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
 mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -27,6 +27,7 @@ export default function VolunteerMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const activeMarker = useRef<mapboxgl.Marker | null>(null);
+
 
   useEffect(() => {
     setIsMounted(true);
@@ -108,6 +109,7 @@ export default function VolunteerMap() {
           }}
           marker={true} 
         />
+
       </div>
 
       <div className="w-full max-w-5xl h-96 border-8 border-white rounded-[2.5rem] overflow-hidden shadow-2xl bg-white relative z-10">

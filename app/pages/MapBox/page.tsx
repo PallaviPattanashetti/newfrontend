@@ -1,14 +1,7 @@
 
 import VolunteerMap from "@/app/components/VolunteerMap";
 import { fetchMapLocation } from "@/lib/mapServices";
-import { Metadata } from "next";
 import mapboxgl from "mapbox-gl";
-
-export const metadata: Metadata = {
-  title: "TimeBank | Find Volunteers",
-  description:
-    "Locate community service exchanges and skilled volunteers near you.",
-};
 
 export default async function MapPage() {
   const initialVolunteers = await fetchMapLocation("");
