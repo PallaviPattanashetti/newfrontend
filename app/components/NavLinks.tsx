@@ -145,7 +145,7 @@ export function NavLinks() {
 
   return (
     <div className="sticky top-0 z-50 w-full bg-linear-to-r from-[#d8f1f7]/95 via-[#edf9fb]/95 to-white/95 backdrop-blur-sm">
-      <Navbar
+     { isLoggedIn  ? <Navbar
         fluid
         rounded={false}
         className="relative border-none bg-transparent! px-4 py-4 shadow-none dark:bg-transparent! md:px-6"
@@ -230,7 +230,8 @@ export function NavLinks() {
             ))}
           </motion.div>
         </NavbarCollapse>
-      </Navbar>
+      </Navbar> : ""}
     </div>
   );
 }
+
