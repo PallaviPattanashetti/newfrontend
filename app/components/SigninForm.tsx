@@ -119,6 +119,15 @@ const SigninPage = () => {
           </span>
         </p>
       </form>
+          <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <p className="text-[32px] md:text-[40px] mt-10 text-gray-900 text-center font-light italic">
+                &ldquo;"Start where you are. Use what you have. Do what you can." &rdquo;
+              </p>
+            </motion.div>
     </div>
   );
 };
