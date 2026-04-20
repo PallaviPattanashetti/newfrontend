@@ -1,8 +1,8 @@
 import { RegisterUser, Token, UserLogin } from "@/interfaces/userinterfaces";
 
-// const DEFAULT_API_BASE_URL = "https://tbtest-hpa0bagng7azd3cc.westus3-01.azurewebsites.net";
+const DEFAULT_API_BASE_URL = "https://tbtest-hpa0bagng7azd3cc.westus3-01.azurewebsites.net";
 
-const DEFAULT_API_BASE_URL = "http://localhost:5056/";
+// const DEFAULT_API_BASE_URL = "http://localhost:5056/";
 
 const RAW_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ??
