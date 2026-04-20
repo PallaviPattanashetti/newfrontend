@@ -1,6 +1,8 @@
 import { RegisterUser, Token, UserLogin } from "@/interfaces/userinterfaces";
 
-const DEFAULT_API_BASE_URL = "https://tbtest-hpa0bagng7azd3cc.westus3-01.azurewebsites.net";
+// const DEFAULT_API_BASE_URL = "https://tbtest-hpa0bagng7azd3cc.westus3-01.azurewebsites.net";
+
+const DEFAULT_API_BASE_URL = "http://localhost:5056/";
 
 const RAW_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ??
@@ -163,7 +165,7 @@ export const createAccount = async (user: RegisterUser) => {
         password: user.password,
     };
 
-    const res = await safeFetch(`${BASE_URL}/api/user/register`, {
+    const res = await safeFetch(`${BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -186,7 +188,7 @@ export const login = async (user: UserLogin) => {
         password: user.password,
     };
 
-    const res = await safeFetch(`${BASE_URL}/api/user/login`, {
+    const res = await safeFetch(`${BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
