@@ -113,7 +113,7 @@ export const setToken = (token: string) => {
     localStorage.setItem(TOKEN_STORAGE_KEY, token);
     window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 };
-
+//test change
 export const clearToken = () => {
     if (typeof window === "undefined") {
         return;
