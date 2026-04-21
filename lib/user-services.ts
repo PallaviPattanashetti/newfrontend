@@ -26,6 +26,7 @@ const BLOB_UPLOAD_ENDPOINT =
 
 const TOKEN_STORAGE_KEY = "token";
 const USER_STORAGE_KEY = "user";
+const CHAT_USERNAME_STORAGE_KEY = "username";
 const AUTH_CHANGED_EVENT = "auth-changed";
 
 type ApiResponse<T> = {
@@ -124,6 +125,7 @@ export const clearToken = () => {
     }
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(CHAT_USERNAME_STORAGE_KEY);
     window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 };
 
@@ -160,6 +162,53 @@ export const authHeaders = (): HeadersInit => {
     return headers;
 };
 
+const pickStoredUsername = (obj: Record<string, unknown> | null | undefined) => {
+    if (!obj) {
+        return "";
+    }
+
+    const candidates = [
+        obj.username,
+        obj.userName,
+        obj.loginName,
+        obj.displayName,
+        obj.name,
+        obj.email,
+        obj.userEmail,
+    ];
+
+    for (const value of candidates) {
+        if (typeof value === "string" && value.trim()) {
+            return value.trim();
+        }
+    }
+
+    return "";
+};
+
+const syncStoredChatIdentity = async (fallbackIdentifier: string) => {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    let resolvedUsername = fallbackIdentifier;
+
+    const profileRes = await safeFetch(`${BASE_URL}/api/user/profile`, {
+        method: "GET",
+        headers: authHeaders(),
+    });
+
+    if (profileRes?.ok) {
+        const profile = await parseJsonSafely<Record<string, unknown>>(profileRes);
+        if (profile) {
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(profile));
+            resolvedUsername = pickStoredUsername(profile) || fallbackIdentifier;
+        }
+    }
+
+    localStorage.setItem(CHAT_USERNAME_STORAGE_KEY, resolvedUsername);
+};
+
 export const createAccount = async (user: RegisterUser) => {
     const identifier = user.usernameOrEmail.trim();
     const payload = {
@@ -192,8 +241,6 @@ export const login = async (user: UserLogin) => {
         password: user.password,
 
     };
-    localStorage.setItem("username", identifier);
-
 
     const res = await safeFetch(`${BASE_URL}/api/auth/login`, {
         method: "POST",
@@ -211,6 +258,7 @@ export const login = async (user: UserLogin) => {
     }
 
     setToken(data.token);
+    await syncStoredChatIdentity(identifier);
     return data;
 };
 

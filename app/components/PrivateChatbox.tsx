@@ -3,6 +3,11 @@
 import { useEffect, useState } from "react";
 import { startConnection, registerUser, sendPrivateMessage, stopConnection } from "@/lib/signalservices";
 
+const isExpectedSignalRStartupAbort = (error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.toLowerCase().includes("stopped during negotiation");
+};
+
 export default function PrivateChatbox() {
   const [username, setUsername] = useState("");
   const [toUser, setToUser] = useState("");
@@ -10,6 +15,7 @@ export default function PrivateChatbox() {
   const [chatLog, setChatLog] = useState<string[]>([]);
 
   useEffect(() => {
+    let isCancelled = false;
     const storedUsername = localStorage.getItem("username");
 
     if (!storedUsername) {
@@ -20,17 +26,26 @@ export default function PrivateChatbox() {
     setUsername(storedUsername);
 
     const init = async () => {
-      await startConnection((from, msg) => {
-        setChatLog(prev => [...prev, `From ${from}: ${msg}`]);
-      });
+      try {
+        await startConnection((from, msg) => {
+          setChatLog(prev => [...prev, `From ${from}: ${msg}`]);
+        });
 
-      await registerUser(storedUsername);
+        await registerUser(storedUsername);
+      } catch (error) {
+        if (isCancelled || isExpectedSignalRStartupAbort(error)) {
+          return;
+        }
+
+        console.error("SignalR init failed", error);
+      }
     };
 
-    init();
+    void init();
 
     return () => {
-      stopConnection();
+      isCancelled = true;
+      void stopConnection();
     };
   }, []);
 
