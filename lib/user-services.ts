@@ -79,9 +79,13 @@ const safeFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     try {
         return await fetch(input, init);
     } catch (error) {
+        const errorName = error instanceof Error ? error.name : typeof error;
+        const errorMessage = error instanceof Error ? error.message : String(error);
         console.error("API request failed", {
             endpoint: String(input),
             method: init?.method ?? "GET",
+            errorName,
+            errorMessage,
             error,
         });
         return null;

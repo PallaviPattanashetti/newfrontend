@@ -6,15 +6,16 @@ Create a `.env.local` file at the project root, or copy `.env.example` to `.env.
 
 ```bash
 NEXT_PUBLIC_API_BASE_URL=https://your-new-webapp.azurewebsites.net
-NEXT_PUBLIC_BLOB_UPLOAD_ENDPOINT=https://your-new-webapp.azurewebsites.net/api/blob/upload
+NEXT_PUBLIC_BLOB_UPLOAD_ENDPOINT=https://your-new-webapp.azurewebsites.net/api/user/profile-picture
 ```
 
 Notes:
 - `NEXT_PUBLIC_API_BASE_URL` is used for all existing auth/profile/discovery API calls.
 - Alias supported: `NEXT_PUBLIC_WEBAPP_API_URL`.
-- `NEXT_PUBLIC_BLOB_UPLOAD_ENDPOINT` is optional. If omitted, the app will try common upload routes under `NEXT_PUBLIC_API_BASE_URL`.
+- `NEXT_PUBLIC_BLOB_UPLOAD_ENDPOINT` is optional. If omitted, the app will try common upload routes under `NEXT_PUBLIC_API_BASE_URL`, starting with `/api/user/profile-picture`.
 - Aliases supported: `NEXT_PUBLIC_BLOB_UPLOAD_URL`, `NEXT_PUBLIC_BLOB_API_ENDPOINT`.
 - Configure the same API URL in your production host as well as `.env.local`. If the deployment environment omits it, the frontend falls back to a default URL baked into the client bundle.
+- The deployed backend also needs Azure App Service settings for blob uploads: `BlobStorage__ConnectionString`, `BlobStorage__ContainerName`, and optionally `BlobStorage__PublicBaseUrl`.
 
 ## Getting Started
 
