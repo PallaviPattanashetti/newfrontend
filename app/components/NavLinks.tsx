@@ -10,6 +10,7 @@ import {
   NavbarLink,
   NavbarToggle,
 } from "flowbite-react";
+import { DM_UNREAD_CHANGED_EVENT, getDmUnreadCount } from "@/lib/dm-services";
 import { checkToken, clearToken, loggedInData } from "@/lib/user-services";
 
 const CREDIT_KEYS = [
@@ -59,20 +60,30 @@ export function NavLinks() {
   const { push } = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [creditBalance, setCreditBalance] = useState("--");
+  const [unreadDmCount, setUnreadDmCount] = useState(0);
 
   useEffect(() => {
-    const refreshAuthState = () => {
+    const refreshAuthState = async () => {
       const loggedIn = checkToken();
       setIsLoggedIn(loggedIn);
       setCreditBalance(loggedIn ? readCreditBalance() : "--");
+
+      if (!loggedIn) {
+        setUnreadDmCount(0);
+        return;
+      }
+
+      setUnreadDmCount(await getDmUnreadCount());
     };
 
-    refreshAuthState();
+    void refreshAuthState();
     window.addEventListener("storage", refreshAuthState);
     window.addEventListener("auth-changed", refreshAuthState);
+    window.addEventListener(DM_UNREAD_CHANGED_EVENT, refreshAuthState);
     return () => {
       window.removeEventListener("storage", refreshAuthState);
       window.removeEventListener("auth-changed", refreshAuthState);
+      window.removeEventListener(DM_UNREAD_CHANGED_EVENT, refreshAuthState);
     };
   }, []);
 
@@ -215,8 +226,13 @@ export function NavLinks() {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className="flex flex-col items-center justify-center p-2 origin-center"
+                  className="relative flex flex-col items-center justify-center p-2 origin-center"
                 >
+                  {item.label === "Messages" && unreadDmCount > 0 ? (
+                    <span className="absolute right-1 top-0 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
+                      {unreadDmCount}
+                    </span>
+                  ) : null}
                   <img
                     src={item.icon}
                     className="h-8 w-8 md:h-12 md:w-12"

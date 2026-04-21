@@ -1,29 +1,42 @@
 import { HubConnectionBuilder, HubConnection, HubConnectionState, LogLevel } from "@microsoft/signalr";
 import { getApiBaseUrl } from "@/lib/user-services";
 
+import type { LiveDmPayload } from "@/lib/dm-services";
+
 let connection: HubConnection | null = null;
 let startPromise: Promise<void> | null = null;
 let stopPromise: Promise<void> | null = null;
 let activeConsumers = 0;
 let stopTimeout: ReturnType<typeof setTimeout> | null = null;
-
-const LEGACY_HUB_URL = "https://testsignalrdor-aredgsa5hshwebdx.westus3-01.azurewebsites.net/hubs/Message";
+let registeredUsername = "";
 
 const getHubUrlCandidates = () => {
   const explicitHubUrl = process.env.NEXT_PUBLIC_SIGNALR_HUB_URL?.trim() ?? "";
-  const candidates = [explicitHubUrl, `${getApiBaseUrl()}/chatHub`, LEGACY_HUB_URL];
+  const candidates = [explicitHubUrl, `${getApiBaseUrl()}/chatHub`];
 
   return [...new Set(candidates.map((value) => value.trim()).filter(Boolean))];
 };
 
-const buildConnection = (hubUrl: string, onReceivePrivate: (from: string, message: string) => void) => {
+const buildConnection = (hubUrl: string, onReceivePrivate: (payload: LiveDmPayload) => void) => {
   const hubConnection = new HubConnectionBuilder()
     .withUrl(hubUrl)
     .configureLogging(LogLevel.Information)
     .withAutomaticReconnect()
     .build();
 
-  hubConnection.on("ReceivePrivateMessage", (data: { from: string, message: string }) => onReceivePrivate(data.from, data.message));
+  hubConnection.on("ReceivePrivateMessage", (payload: LiveDmPayload) => onReceivePrivate(payload));
+
+  hubConnection.onreconnected(async () => {
+    if (!registeredUsername) {
+      return;
+    }
+
+    try {
+      await hubConnection.invoke("Register", registeredUsername);
+    } catch (error) {
+      console.error("SignalR re-register failed", error);
+    }
+  });
 
   return hubConnection;
 };
@@ -57,6 +70,7 @@ const finalizeStop = async (targetConnection: HubConnection) => {
 
   if (connection === targetConnection) {
     connection = null;
+    registeredUsername = "";
   }
 };
 
@@ -118,13 +132,13 @@ const ensureConnectionStarted = async () => {
   await waitForConnectedState();
 };
 
-export const startConnection = async (onReceivePrivate: (from: string, message: string) => void) => {
+export const startConnection = async (onReceivePrivate: (payload: LiveDmPayload) => void) => {
   activeConsumers += 1;
   cancelScheduledStop();
 
   if (connection) {
     connection.off("ReceivePrivateMessage");
-    connection.on("ReceivePrivateMessage", (data: { from: string, message: string }) => onReceivePrivate(data.from, data.message));
+    connection.on("ReceivePrivateMessage", (payload: LiveDmPayload) => onReceivePrivate(payload));
 
     try {
       await ensureConnectionStarted();
@@ -164,6 +178,7 @@ export const startConnection = async (onReceivePrivate: (from: string, message: 
 export const registerUser = async (username: string) => {
   if (!connection) throw new Error("Connection not started.");
   await ensureConnectionStarted();
+  registeredUsername = username;
   await connection.invoke("Register", username);
 };
 
