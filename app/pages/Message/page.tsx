@@ -1,9 +1,13 @@
-
-
 "use client";
-import { useMemo, useState, Suspense } from "react";
+import { useMemo, useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  startConnection,
+  registerUser,
+  sendPrivateMessage,
+  stopConnection,
+} from "@/lib/signalservices";
 
 const CONTACTS = [
   { id: 1, name: "Ken", status: "Online", avatar: "KM" },
@@ -14,10 +18,14 @@ const CONTACTS = [
 
 function ChatContent() {
   const searchParams = useSearchParams();
-  
+
   const contactQuery = searchParams.get("contact");
 
-  const [selectedPerson, setSelectedPerson] = useState("Jose");
+  const [selectedPerson, setSelectedPerson] = useState("");
+  const [username, setUsername] = useState("");
+  const [toUser, setToUser] = useState("");
+  const [message, setMessage] = useState("");
+  const [chatLog, setChatLog] = useState<string[]>([]);
 
   const activePerson = useMemo(() => {
     if (!contactQuery) {
@@ -25,17 +33,48 @@ function ChatContent() {
     }
 
     const found = CONTACTS.find(
-      (c) => c.name.toLowerCase() === contactQuery.toLowerCase()
+      (c) => c.name.toLowerCase() === contactQuery.toLowerCase(),
     );
     return found?.name ?? selectedPerson;
   }, [contactQuery, selectedPerson]);
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+
+    if (!storedUsername) {
+      console.error("No username found. User not logged in.");
+      return;
+    }
+
+    setUsername(storedUsername);
+
+    const init = async () => {
+      await startConnection((from, msg) => {
+        setChatLog((prev) => [...prev, `From ${from}: ${msg}`]);
+      });
+
+      await registerUser(storedUsername);
+    };
+
+    init();
+
+    return () => {
+      stopConnection();
+    };
+  }, []);
+
+  const handleSend = async () => {
+    await sendPrivateMessage(toUser, username, message);
+    setChatLog((prev) => [...prev, `To ${toUser}: ${message}`]);
+    setMessage("");
+  };
 
   return (
     <div
       className="min-h-screen bg-cover bg-center flex flex-col items-center p-4 md:p-6 font-sans"
       style={{ backgroundImage: "url('/assets/TBBackround.jpeg')" }}
     >
-      <motion.div 
+      <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="w-full max-w-87.5 bg-[#5F4F4F]/50 rounded-xl flex items-center justify-center my-6 md:my-8 p-5 border border-gray-200 shadow-sm"
@@ -45,7 +84,7 @@ function ChatContent() {
         </h1>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.4 }}
@@ -56,39 +95,23 @@ function ChatContent() {
             Contacts
           </h2>
           <div className="flex flex-col gap-1">
-            {CONTACTS.map((person) => (
-              <motion.button
-                key={person.id}
-                whileHover={{ x: 5 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setSelectedPerson(person.name)}
-                className={`p-3 rounded-lg flex items-center gap-3 transition-colors ${
-                  activePerson === person.name
-                    ? "bg-blue-500 text-white shadow-md"
-                    : "text-gray-600 hover:bg-white/50"
-                }`}
-              >
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ${
-                  activePerson === person.name ? "bg-white text-blue-600" : "bg-gray-200 text-gray-500"
-                }`}>
-                  {person.avatar}
-                </div>
-                <div className="text-left">
-                  <p className="font-bold text-sm">{person.name}</p>
-                  <p className="text-[10px] opacity-70">{person.status}</p>
-                </div>
-              </motion.button>
-            ))}
-          </div>
+            <input
+        type="text"
+        placeholder="Send to..."
+        value={toUser}
+        onChange={e => setToUser(e.target.value)}
+        className="bg-white text-black"
+      />
+      </div>
         </div>
 
         <div className="flex-1 flex flex-col bg-white/30">
           <div className="p-4 border-b border-gray-100/20 flex items-center gap-3 bg-white/40">
-            <motion.div 
+            <motion.div
               key={activePerson}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="w-2 h-2 bg-green-500 rounded-full" 
+              className="w-2 h-2 bg-green-500 rounded-full"
             />
             <span className="font-bold text-gray-800">{activePerson}</span>
           </div>
@@ -102,13 +125,12 @@ function ChatContent() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
                 className="flex flex-col gap-4"
-              >
-                <div className="bg-blue-600 text-white p-3 px-4 rounded-2xl rounded-tr-none self-end max-w-[80%] text-sm shadow-sm">
-                  Hi {activePerson}! Are you free for a quick chat about the skill swap?
-                </div>
-                <div className="bg-white text-gray-800 p-3 px-4 rounded-2xl rounded-tl-none self-start max-w-[80%] text-sm shadow-sm">
-                  Hey! Yes, I&apos;m available. What did you have in mind?
-                </div>
+              >      <ul>
+        {chatLog.map((entry, idx) => (
+         <div className="bg-blue-600 text-white p-3 px-4 rounded-2xl rounded-tr-none self-end max-w-[80%] text-sm shadow-sm"><li key={idx}>{entry}</li></div>
+         
+        ))}
+      </ul>
               </motion.div>
             </AnimatePresence>
           </div>
@@ -117,15 +139,23 @@ function ChatContent() {
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                placeholder="Type a message..."
+                placeholder="Your message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 className="w-full h-11 px-4 rounded-full border border-gray-200 bg-white/80 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-sm"
               />
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                onClick={handleSend}
                 className="w-11 h-11 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md"
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="currentColor"
+                >
                   <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                 </svg>
               </motion.button>
@@ -143,11 +173,9 @@ function ChatContent() {
           &ldquo;A community is just a collection of shared hours.&rdquo;
         </p>
       </motion.div>
-      
     </div>
   );
 }
-
 
 export default function ChatPage() {
   return (
