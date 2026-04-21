@@ -186,7 +186,10 @@ export const login = async (user: UserLogin) => {
         email: identifier,
         UserEmail: identifier,
         password: user.password,
+
     };
+    localStorage.setItem("username", identifier);
+
 
     const res = await safeFetch(`${BASE_URL}/api/auth/login`, {
         method: "POST",
