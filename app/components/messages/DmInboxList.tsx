@@ -76,7 +76,7 @@ export function DmInboxList({
 
               return (
                 <button
-                  key={item.threadId}
+                  key={`${item.threadId}-${item.otherUsername.toLowerCase()}`}
                   type="button"
                   onClick={() => onSelect(item.otherUsername)}
                   className={`rounded-2xl border px-3 py-3 text-left transition ${

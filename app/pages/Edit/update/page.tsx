@@ -22,8 +22,24 @@ const isSafeImageSrc = (value: string): boolean => {
   }
 };
 
+const isPersistableImageSrc = (value: string): boolean => {
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  if (trimmed.startsWith("/")) return true;
+
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
 const toSafeImageSrc = (value: string): string =>
   isSafeImageSrc(value) ? value.trim() : DEFAULT_IMAGE;
+
+const toPersistableImageSrc = (value: string): string =>
+  isPersistableImageSrc(value) ? value.trim() : DEFAULT_IMAGE;
 
 const pickString = (obj: Record<string, unknown> | null, keys: string[]): string => {
   if (!obj) return "";
@@ -108,7 +124,7 @@ export default function UpdateProfilePage() {
       return;
     }
 
-    if (isSafeImageSrc(trimmed)) {
+    if (isPersistableImageSrc(trimmed)) {
       setImage(trimmed);
       setStatusMessage("");
       return;
@@ -121,7 +137,7 @@ export default function UpdateProfilePage() {
     setIsSaving(true);
     setStatusMessage("");
 
-    let profilePictureUrl = toSafeImageSrc(image);
+    let profilePictureUrl = toPersistableImageSrc(image);
 
     if (selectedImageFile) {
       setStatusMessage("Uploading image to blob storage...");
