@@ -39,7 +39,10 @@ function ChatContent() {
   }, [contactQuery, selectedPerson]);
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
+
+    const init = async () => {
+
+    const storedUsername = await localStorage.getItem("username");
 
     if (!storedUsername) {
       console.error("No username found. User not logged in.");
@@ -48,7 +51,6 @@ function ChatContent() {
 
     setUsername(storedUsername);
 
-    const init = async () => {
       await startConnection((from, msg) => {
         setChatLog((prev) => [...prev, `From ${from}: ${msg}`]);
       });
@@ -95,7 +97,7 @@ function ChatContent() {
             Contacts
           </h2>
           <div className="flex flex-col gap-1">
-            <input
+      <input
         type="text"
         placeholder="Send to..."
         value={toUser}
@@ -127,7 +129,7 @@ function ChatContent() {
                 className="flex flex-col gap-4"
               >      <ul>
         {chatLog.map((entry, idx) => (
-         <div className="bg-blue-600 text-white p-3 px-4 rounded-2xl rounded-tr-none self-end max-w-[80%] text-sm shadow-sm"><li key={idx}>{entry}</li></div>
+         <div key={idx} className="bg-blue-600 text-white p-3 px-4 rounded-2xl rounded-tr-none self-end max-w-[80%] text-sm shadow-sm"><li key={idx}>{entry}</li></div>
          
         ))}
       </ul>
