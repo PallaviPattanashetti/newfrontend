@@ -68,7 +68,7 @@ export type ProfilesQueryOptions = {
     radiusKm?: number;
 };
 
-const parseJsonSafely = async <T>(res: Response): Promise<T | null> => {
+export const parseJsonSafely = async <T>(res: Response): Promise<T | null> => {
     try {
         return (await res.json()) as T;
     } catch {
@@ -76,7 +76,7 @@ const parseJsonSafely = async <T>(res: Response): Promise<T | null> => {
     }
 };
 
-const safeFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+export const safeFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     try {
         return await fetch(input, init);
     } catch (error) {
@@ -665,4 +665,12 @@ export const getDiscoverableProfiles = async (searchName = "", options: Profiles
     }
 
     return profiles.filter((profile) => profile.profileName.toLowerCase().includes(query));
+};
+
+export const getStoredChatUsername = () => {
+    if (typeof window === "undefined") {
+        return "";
+    }
+
+    return localStorage.getItem(CHAT_USERNAME_STORAGE_KEY) ?? "";
 };
