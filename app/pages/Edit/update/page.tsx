@@ -271,7 +271,6 @@ export default function UpdateProfilePage() {
 
 
 
-
         <label className="block text-[10px] font-black text-black uppercase mb-2 ml-1 tracking-[0.2em]">
           Description
         </label>
