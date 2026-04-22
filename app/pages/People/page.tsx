@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import {
@@ -70,8 +70,33 @@ const filterOutCurrentUser = (
   });
 };
 
+const loadDefaultProfiles = async (
+  coords: { lat: number; long: number } | null,
+) => {
+  const nearbyProfiles = await getDiscoverableProfiles("", {
+    skip: 0,
+    take: 6,
+    random: false,
+    onlyComplete: true,
+    latitude: coords?.lat,
+    longitude: coords?.long,
+  });
+
+  if (nearbyProfiles.length > 0) {
+    return nearbyProfiles;
+  }
+
+  return await getDiscoverableProfiles("", {
+    skip: 0,
+    take: 6,
+    random: false,
+    onlyComplete: true,
+  });
+};
+
 export default function People() {
   const { push } = useRouter();
+  const skipNextEmptySearchRef = useRef(false);
   const [visibleProfiles, setVisibleProfiles] = useState<DiscoverableProfile[]>(
     [],
   );
@@ -132,14 +157,8 @@ export default function People() {
       setLocationCoords(coords);
 
       setError("");
-      const profiles = await getDiscoverableProfiles("", {
-        skip: 0,
-        take: 6,
-        random: false,
-        onlyComplete: true,
-        latitude: coords?.lat,
-        longitude: coords?.long,
-      });
+      const profiles = await loadDefaultProfiles(coords);
+      skipNextEmptySearchRef.current = true;
       setVisibleProfiles(filterOutCurrentUser(profiles, identityKeys));
 
       setIsLoading(false);
@@ -154,16 +173,23 @@ export default function People() {
         return;
       }
 
+      if (!searchTerm.trim() && skipNextEmptySearchRef.current) {
+        skipNextEmptySearchRef.current = false;
+        return;
+      }
+
       setIsRefreshing(true);
       setError("");
-      const profiles = await getDiscoverableProfiles(searchTerm, {
-        skip: 0,
-        take: searchTerm.trim() ? 20 : 6,
-        random: false,
-        onlyComplete: true,
-        latitude: locationCoords?.lat,
-        longitude: locationCoords?.long,
-      });
+      const profiles = searchTerm.trim()
+        ? await getDiscoverableProfiles(searchTerm, {
+            skip: 0,
+            take: 20,
+            random: false,
+            onlyComplete: true,
+            latitude: locationCoords?.lat,
+            longitude: locationCoords?.long,
+          })
+        : await loadDefaultProfiles(locationCoords);
       setVisibleProfiles(filterOutCurrentUser(profiles, currentUserKeys));
       setIsRefreshing(false);
     }, 280);
