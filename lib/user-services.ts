@@ -95,6 +95,14 @@ export const safeFetch = async (input: RequestInfo | URL, init?: RequestInit) =>
 
 export const getApiBaseUrl = () => BASE_URL;
 
+const getProfilesApiBaseUrl = () => {
+    if (typeof window !== "undefined") {
+        return "";
+    }
+
+    return BASE_URL;
+};
+
 const getTokenExp = (token: string): number | null => {
     const parts = token.split(".");
     if (parts.length !== 3) {
@@ -153,7 +161,7 @@ export const checkToken = () => {
 
 export const authHeaders = (): HeadersInit => {
     const token = getToken();
-    const headers: HeadersInit = { "Content-Type": "application/json" };
+    const headers: HeadersInit = {};
 
     if (token) {
         headers.Authorization = `Bearer ${token}`;
@@ -344,9 +352,14 @@ const wasSuccessfulResponse = async (res: Response) => {
 export const saveProfile = async (profile: ProfilePayload) => {
     const payload = buildProfilePayload(profile);
 
+    const headers: HeadersInit = {
+        ...authHeaders(),
+        "Content-Type": "application/json",
+    };
+
     const putRes = await safeFetch(`${BASE_URL}/api/user/profile`, {
         method: "PUT",
-        headers: authHeaders(),
+        headers,
         body: JSON.stringify(payload),
     });
 
@@ -360,7 +373,7 @@ export const saveProfile = async (profile: ProfilePayload) => {
 
     const postRes = await safeFetch(`${BASE_URL}/api/user/profile`, {
         method: "POST",
-        headers: authHeaders(),
+        headers,
         body: JSON.stringify(payload),
     });
 
@@ -613,9 +626,10 @@ const getProfilesPayload = async (options: ProfilesQueryOptions = {}) => {
     }
 
     const query = params.toString();
+    const profilesBaseUrl = getProfilesApiBaseUrl();
     const endpoint = query
-        ? `${BASE_URL}/api/user/profiles?${query}`
-        : `${BASE_URL}/api/user/profiles`;
+        ? `${profilesBaseUrl}/api/user/profiles?${query}`
+        : `${profilesBaseUrl}/api/user/profiles`;
 
     const res = await safeFetch(endpoint, {
         method: "GET",

@@ -36,6 +36,11 @@ export const DM_UNREAD_CHANGED_EVENT = "dm-unread-changed";
 
 const DM_BASE_PATH = `${getApiBaseUrl()}/api/Dms`;
 
+const authJsonHeaders = (): HeadersInit => ({
+  ...authHeaders(),
+  "Content-Type": "application/json",
+});
+
 const normalizeUnreadCount = (payload: unknown) => {
   if (typeof payload === "number" && Number.isFinite(payload)) {
     return payload;
@@ -107,7 +112,7 @@ export const getDmConversationMessages = async (otherUsername: string): Promise<
 export const postDmMessage = async (otherUsername: string, message: string): Promise<boolean> => {
   const res = await safeFetch(`${DM_BASE_PATH}/conversations/${encodeURIComponent(otherUsername)}/messages`, {
     method: "POST",
-    headers: authHeaders(),
+    headers: authJsonHeaders(),
     body: JSON.stringify({ message }),
   });
 
@@ -117,7 +122,7 @@ export const postDmMessage = async (otherUsername: string, message: string): Pro
 export const markDmConversationRead = async (otherUsername: string): Promise<boolean> => {
   const res = await safeFetch(`${DM_BASE_PATH}/conversations/${encodeURIComponent(otherUsername)}/read`, {
     method: "POST",
-    headers: authHeaders(),
+    headers: authJsonHeaders(),
     body: JSON.stringify({}),
   });
 
