@@ -116,6 +116,14 @@ export function NavLinks() {
         path: "/pages/HelpCategory",
       },
 
+//test
+ {
+        icon: "/assets/icons8-categorize-100.png",
+        label: "HomeHelpPost",
+        path: "/pages/HomeHelpPost",
+      },
+
+
       {
         icon: "/assets/icons8-messages-100.png",
         label: "Messages",

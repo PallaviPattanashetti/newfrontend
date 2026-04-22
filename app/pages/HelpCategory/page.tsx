@@ -13,7 +13,7 @@ export default function HelpCategory() {
   const topSectionImages = ["/assets/Offer.gif", "/assets/Get.gif"];
 
   const bottomCardData = [
-    { img: "/assets/HomeHelp.gif", title: "Home Help", path: "./SubHelp" },
+    { img: "/assets/HomeHelp.gif", title: "Home Help", path: "./HomeHelpPost" },
     { img: "/assets/LearningHelp.gif", title: "Learning Help", path: "./SubLearning" },
     { img: "/assets/GardenHelp.gif", title: "Garden Help", path: "./SubGarden" },
     { img: "/assets/PetHelp.gif", title: "Pet Help", path: "./SubPet" },
