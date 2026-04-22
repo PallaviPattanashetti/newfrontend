@@ -7,13 +7,13 @@ const Page = () => {
   const [posts, setPosts] = useState([
     {
       id: 1,
-      user: "Lucas.",
+      user: "Rose.",
       avatar: "https://i.pravatar.cc/150?u=sarah",
       content: "Looking for someone to help with gardening this weekend! .",
     },
     {
       id: 2,
-      user: " Rose",
+      user: " Lucas",
       avatar: "https://i.pravatar.cc/150?u=mike",
       content: "Does anyone available to declutter my garage?",
     }
