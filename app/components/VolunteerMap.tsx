@@ -14,6 +14,8 @@ const SearchBox = dynamic(() => import("@mapbox/search-js-react").then((mod) => 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
+  
+
 export default function VolunteerMap() {
   const { maplocation } = useMapLocation();
   const [showDetails, setShowDetails] = useState(false);

@@ -63,11 +63,17 @@ export default function UpdateProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
+  const [city, setCity] = useState<string>("");
+
   useEffect(() => {
     const load = async () => {
+
+      
       if (!checkToken()) {
         push("/pages/Signin");
         return;
+
+        
       }
 
       const profile = await getProfile();
@@ -150,6 +156,7 @@ export default function UpdateProfilePage() {
         setStatusMessage("Image upload failed. Verify blob upload endpoint route, form field name, and response URL key.");
         return;
       }
+      
     }
 
     const success = await saveProfile({
@@ -247,6 +254,24 @@ export default function UpdateProfilePage() {
           className="w-full p-3 bg-white/60 border-none rounded-xl focus:ring-2 focus:ring-[#28a8af] outline-none text-gray-800 font-bold mb-6"
         />
 
+
+//adding city here
+<label className="block text-[10px] font-black text-black uppercase mb-2 ml-1 tracking-[0.2em]">
+  City
+</label>
+<input
+  type="text"
+  value={city}
+  onChange={(e) => setCity(e.target.value)}
+  placeholder="Enter your city"
+  className="w-full p-3 bg-white/60 border-none rounded-xl focus:ring-2 focus:ring-[#28a8af] outline-none text-gray-800 font-bold mb-6"
+/>
+
+
+
+
+
+
         <label className="block text-[10px] font-black text-black uppercase mb-2 ml-1 tracking-[0.2em]">
           Description
         </label>
@@ -282,3 +307,8 @@ export default function UpdateProfilePage() {
     </div>
   );
 }
+
+
+
+
+
