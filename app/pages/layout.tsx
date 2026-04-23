@@ -1,22 +1,17 @@
 
-import { MapLocationProvider } from '@/context/context';
 import React from 'react';
-import { NavLinks } from '../components/NavLinks';
 
-// Important: Next.js Root Layouts must include <html> and <body> tags
+// Nested layout for /pages/* routes
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-        <MapLocationProvider> 
-          <div className="flex flex-col min-h-screen">
-            <NavLinks/>
+        <div className="flex flex-col min-h-screen">
             <main className="grow">
               {children}
             </main>
           </div>
-        </MapLocationProvider>
   );
 }
