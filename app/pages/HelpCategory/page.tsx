@@ -14,11 +14,11 @@ export default function HelpCategory() {
 
   const bottomCardData = [
     { img: "/assets/HomeHelp.gif", title: "Home Help", path: "./HomeHelpPost" },
-    { img: "/assets/LearningHelp.gif", title: "Learning Help", path: "./SubLearning" },
-    { img: "/assets/GardenHelp.gif", title: "Garden Help", path: "./SubGarden" },
-    { img: "/assets/PetHelp.gif", title: "Pet Help", path: "./SubPet" },
-    { img: "/assets/creativeHelp.gif", title: "Creative Help", path: "./SubCreative" },
-    { img: "/assets/FitnessHelp.gif", title: "Fitness Help", path: "./SubFitness" },
+    { img: "/assets/LearningHelp.gif", title: "Learning Help", path: "./HomeHelpPost" },
+    { img: "/assets/GardenHelp.gif", title: "Garden Help", path: "./HomeHelpPost" },
+    { img: "/assets/PetHelp.gif", title: "Pet Help", path: "./HomeHelpPost" },
+    { img: "/assets/creativeHelp.gif", title: "Creative Help", path: "./HomeHelpPost" },
+    { img: "/assets/FitnessHelp.gif", title: "Fitness Help", path: "./HomeHelpPost" },
   ];
 
   return (
