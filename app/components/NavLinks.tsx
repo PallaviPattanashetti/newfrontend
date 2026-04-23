@@ -116,7 +116,7 @@ export function NavLinks() {
         path: "/pages/HelpCategory",
       },
 
-//test
+
  {
         icon: "/assets/CreatePost.png",
         label: "Create Post",
