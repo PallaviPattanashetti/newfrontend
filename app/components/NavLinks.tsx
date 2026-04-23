@@ -1,10 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Button,
   Navbar,
   NavbarLink,
   NavbarToggle,
@@ -57,6 +56,7 @@ const readCreditBalance = (): string => {
 
 export function NavLinks() {
   const { push } = useRouter();
+  const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [creditBalance, setCreditBalance] = useState("--");
   const [unreadDmCount, setUnreadDmCount] = useState(0);
@@ -161,6 +161,10 @@ export function NavLinks() {
     show: { opacity: 1, y: 0 },
   };
 
+  if (pathname === "/") {
+    return null;
+  }
+
   return (
     <div className="sticky top-0 z-50 w-full bg-linear-to-r from-[#d8f1f7]/95 via-[#edf9fb]/95 to-white/95 backdrop-blur-sm">
      { isLoggedIn  ? <Navbar
@@ -178,14 +182,12 @@ export function NavLinks() {
 
           <div className="flex items-center gap-2">
             {isLoggedIn ? (
-              <Button
-                size="xs"
-                color="dark"
+              <button
                 onClick={handleLogout}
-                className="rounded-full px-4"
+                className="inline-flex h-9 items-center justify-center rounded-full bg-sky-500 px-4 text-xs font-semibold text-white shadow-md transition hover:bg-sky-600"
               >
                 Logout
-              </Button>
+              </button>
             ) : null}
 
             <NavbarToggle />
@@ -203,14 +205,12 @@ export function NavLinks() {
 
         <div className="absolute right-6 top-1/2 hidden -translate-y-1/2 items-center gap-2 md:flex">
           {isLoggedIn ? (
-            <Button
-              size="xs"
-              color="dark"
+            <button
               onClick={handleLogout}
-              className="rounded-full px-4"
+              className="inline-flex h-10 items-center justify-center rounded-full bg-sky-500 px-5 text-sm font-semibold text-white shadow-md transition hover:bg-sky-600"
             >
               Logout
-            </Button>
+            </button>
           ) : null}
         </div>
 
