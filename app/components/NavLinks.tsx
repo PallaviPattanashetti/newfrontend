@@ -120,7 +120,7 @@ export function NavLinks() {
  {
         icon: "/assets/CreatePost.png",
         label: "Create Post",
-        path: "/pages/HomeHelpPost",
+        path: "/pages/SubHelpPost",
       },
 
 
