@@ -13,12 +13,12 @@ export default function HelpCategory() {
   const topSectionImages = ["/assets/Get.gif", "/assets/offer.gif"];
 
   const bottomCardData = [
-    { img: "/assets/HomeHelp.gif", title: "Home Help", path: "./HomeHelpPost" },
-    { img: "/assets/LearningHelp.gif", title: "Learning Help", path: "./HomeHelpPost" },
-    { img: "/assets/GardenHelp.gif", title: "Garden Help", path: "./HomeHelpPost" },
-    { img: "/assets/PetHelp.gif", title: "Pet Help", path: "./HomeHelpPost" },
-    { img: "/assets/CreativeHelp.gif", title: "Creative Help", path: "./HomeHelpPost" },
-    { img: "/assets/FitnessHelp.gif", title: "Fitness Help", path: "./HomeHelpPost" },
+    { img: "/assets/HomeHelp.gif", title: "Home Help", path: "./SubHelpPost" },
+    { img: "/assets/LearningHelp.gif", title: "Learning Help", path: "./SubHelpPost" },
+    { img: "/assets/GardenHelp.gif", title: "Garden Help", path: "./SubHelpPost" },
+    { img: "/assets/PetHelp.gif", title: "Pet Help", path: "./SubHelpPost" },
+    { img: "/assets/CreativeHelp.gif", title: "Creative Help", path: "./SubHelpPost" },
+    { img: "/assets/FitnessHelp.gif", title: "Fitness Help", path: "./SubHelpPost" },
   ];
 
   return (
