@@ -190,7 +190,7 @@ export default function HelpSection() {
               transition={{ duration: 1 }}
             >
               <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
-                &ldquo;"Building a world where kindness is the ultimate credit."&rdquo;
+                &ldquo;Building a world where kindness is the ultimate credit.&rdquo;
               </p>
             </motion.div>
     </div>

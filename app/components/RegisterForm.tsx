@@ -105,7 +105,7 @@ const RegisterPage = () => {
         transition={{ delay: 0.5 }}
       >
         <p className="text-[32px] md:text-[40px] mt-10 text-gray-900 text-center font-light italic">
-          &ldquo;"Invest an hour. Change a life."&rdquo;
+          &ldquo;Invest an hour. Change a life.&rdquo;
         </p>
       </motion.div>
     </div>

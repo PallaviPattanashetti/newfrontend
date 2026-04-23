@@ -182,7 +182,7 @@ const [city, setCity] = useState<string>("");
               transition={{ duration: 1 }}
             >
               <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
-                &ldquo;"Trade skills, gain time, grow together."&rdquo;
+                &ldquo;Trade skills, gain time, grow together.&rdquo;
               </p>
             </motion.div>
     </div>
