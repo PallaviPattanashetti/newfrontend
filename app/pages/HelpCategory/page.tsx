@@ -10,14 +10,14 @@ export default function HelpCategory() {
   
   const [helpType, setHelpType] = useState<"get" | "offer" | null>(null);
 
-  const topSectionImages = ["/assets/Offer.gif", "/assets/Get.gif"];
+  const topSectionImages = ["/assets/Get.gif", "/assets/offer.gif"];
 
   const bottomCardData = [
     { img: "/assets/HomeHelp.gif", title: "Home Help", path: "./HomeHelpPost" },
     { img: "/assets/LearningHelp.gif", title: "Learning Help", path: "./HomeHelpPost" },
     { img: "/assets/GardenHelp.gif", title: "Garden Help", path: "./HomeHelpPost" },
     { img: "/assets/PetHelp.gif", title: "Pet Help", path: "./HomeHelpPost" },
-    { img: "/assets/creativeHelp.gif", title: "Creative Help", path: "./HomeHelpPost" },
+    { img: "/assets/CreativeHelp.gif", title: "Creative Help", path: "./HomeHelpPost" },
     { img: "/assets/FitnessHelp.gif", title: "Fitness Help", path: "./HomeHelpPost" },
   ];
 
