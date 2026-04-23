@@ -118,7 +118,7 @@ export function NavLinks() {
 
 //test
  {
-        icon: "/assets/icons8-categorize-100.png",
+        icon: "/assets/CreatePost.png",
         label: "Create Post",
         path: "/pages/HomeHelpPost",
       },
