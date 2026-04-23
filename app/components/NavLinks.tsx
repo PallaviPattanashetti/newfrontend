@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Button,
   Navbar,
-  NavbarCollapse,
   NavbarLink,
   NavbarToggle,
 } from "flowbite-react";
@@ -215,7 +214,7 @@ export function NavLinks() {
           ) : null}
         </div>
 
-        <NavbarCollapse className="border-none bg-transparent! dark:bg-transparent! md:order-1 md:w-full md:justify-center">
+        <div className="md:order-1 md:w-full md:justify-center">
           <motion.div
             variants={listVariants}
             initial="hidden"
@@ -253,7 +252,7 @@ export function NavLinks() {
               </NavbarLink>
             ))}
           </motion.div>
-        </NavbarCollapse>
+        </div>
       </Navbar> : ""}
     </div>
   );
