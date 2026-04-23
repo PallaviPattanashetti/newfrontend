@@ -170,7 +170,7 @@ export function NavLinks() {
      { isLoggedIn  ? <Navbar
         fluid
         rounded={false}
-        className="relative border-none bg-transparent! px-4 py-4 shadow-none dark:bg-transparent! md:px-6"
+        className="relative border-none bg-transparent! px-4 py-4 shadow-none dark:bg-transparent! md:px-6 [&_ul]:m-0 [&_ul]:list-none [&_ul]:p-0 [&_li]:list-none"
       >
         <div className="flex w-full items-center justify-between md:hidden">
           <div className="flex min-w-28 flex-col rounded-full border border-black/10 bg-white/45 px-4 py-2 text-black shadow-sm backdrop-blur-sm">
@@ -226,7 +226,7 @@ export function NavLinks() {
                 key={item.path}
                 as={Link}
                 href={item.path}
-                className="flex shrink-0 items-center justify-center border-none bg-transparent p-0 no-underline shadow-none"
+                className="list-none flex shrink-0 items-center justify-center border-none bg-transparent p-0 no-underline shadow-none"
               >
                 <motion.div
                   variants={itemVariants}
