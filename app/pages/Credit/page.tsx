@@ -96,10 +96,7 @@ if (!res) {
   throw new Error("Transfer failed");
 }
 
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  user.credits = (user.credits || 0) - transferAmount;
-  localStorage.setItem("user", JSON.stringify(user));
-
+  setCredits(credits - transferAmount);
   window.dispatchEvent(new Event("auth-changed"));
 
   setIsSuccess(true);
