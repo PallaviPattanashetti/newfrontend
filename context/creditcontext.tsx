@@ -41,15 +41,51 @@ const getCreditsFromUser = (): number => {
 };
 
 export function CreditProvider({ children }: { children: React.ReactNode }) {
-  const [credits, setCredits] = useState<number>(0);
+  const [credits, setCreditsState] = useState<number>(0);
 
   const refreshCredits = () => {
-    setCredits(getCreditsFromUser());
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        if (typeof parsed.credits === "number") {
+          setCreditsState(parsed.credits);
+          return;
+        }
+      } catch {}
+    }
+
+    setCreditsState(getCreditsFromUser());
   };
 
   useEffect(() => {
     refreshCredits();
   }, []);
+
+  const setCredits = (value: number) => {
+    setCreditsState(value);
+
+    const storedUser = localStorage.getItem("user");
+
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        user.credits = value;
+        localStorage.setItem("user", JSON.stringify(user));
+      } catch {
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ credits: value })
+        );
+      }
+    } else {
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ credits: value })
+      );
+    }
+  };
 
   return (
     <CreditContext.Provider value={{ credits, setCredits, refreshCredits }}>
