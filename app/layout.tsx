@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MapLocationProvider } from "@/context/context";
 import { NavLinks } from "@/app/components/NavLinks";
+import { CreditProvider } from "@/context/creditcontext";
 
 
 
@@ -32,10 +33,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     ><body className="min-h-full flex flex-col">
        <MapLocationProvider>
+        <CreditProvider>
          <NavLinks />
          <main className="flex-1">
            {children}
          </main>
+         </CreditProvider>
        </MapLocationProvider>
       </body>
     </html>

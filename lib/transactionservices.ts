@@ -1,7 +1,16 @@
 import { TransactionDTO } from "@/interfaces/creditinterfaces";
-import { getApiBaseUrl } from "./user-services";
+import { getApiBaseUrl, safeFetch } from "./user-services";
+const DEFAULT_API_BASE_URL = "https://tbtest-hpa0bagng7azd3cc.westus3-01.azurewebsites.net";
 
 const DM_BASE_PATH = `${getApiBaseUrl()}/api/Credit`;
+
+const RAW_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ??
+    process.env.NEXT_PUBLIC_WEBAPP_API_URL?.trim() ??
+    DEFAULT_API_BASE_URL;
+
+const BASE_URL = RAW_BASE_URL.replace(/\/+$/, "");
+
 
 export const fetchTransfer = async (transaction: TransactionDTO) => {
 const res = await fetch(DM_BASE_PATH + "/Transfer", {
