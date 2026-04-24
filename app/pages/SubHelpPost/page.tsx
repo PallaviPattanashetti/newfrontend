@@ -187,6 +187,18 @@ const Page = () => {
           ))}
         </AnimatePresence>
       </div>
+     
+
+         <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center"
+        >
+          <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
+            &ldquo; The future is in motion, and we're building it with you. Let's GO!.&rdquo;
+          </p>
+        </motion.div>
     </div>
   );
 };
