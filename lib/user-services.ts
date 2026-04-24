@@ -270,6 +270,22 @@ export const login = async (user: UserLogin) => {
     return data;
 };
 
+export const searchUser = async (username: string) => {
+const res = await safeFetch(`${BASE_URL}/api/user/GetUserByUseremail/${encodeURIComponent(username)}`);
+       if (!res) {
+        return null;
+    }
+
+    if (!res.ok) {
+        return null;
+    }
+const data = await res.json();
+console.log(data);
+    return data;
+}
+
+
+
 export const getUserByUsername = async (userEmail: string) => {
     const res = await safeFetch(`${BASE_URL}/api/user/GetUserByUseremail/${encodeURIComponent(userEmail)}`, {
         headers: authHeaders(),

@@ -1,7 +1,12 @@
 
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { fetchTransaction, fetchTransfer, getUserIdByUsername } from "@/lib/transactionservices";
+import { TransactionDTO } from "@/interfaces/creditinterfaces";
+import { getStoredChatUsername } from "@/lib/user-services";
+import {DoesUserExist} from "@/lib/transactionservices"
+
 
 export default function HelpSection() {
   const [isSuccess, setIsSuccess] = useState(false);
@@ -12,12 +17,31 @@ export default function HelpSection() {
 
 
   const [fromUser, setFromUser] = useState("");
+  const [senderId, setSenderId] = useState<number>(0);
   const [toUser, setToUser] = useState("");
   const [balance, setBalance] = useState(10.00);
   const [transferAmount, setTransferAmount] = useState(0.00);
   const [shake, setShake] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+const [searchResult, setSearchResult] = useState<boolean>(false);
+const [hasSearched, setHasSearched] = useState(false);
 
-  const handleIncrease = () => {
+
+
+useEffect(() => {
+  async function onload() {
+    const user = await getStoredChatUsername();
+    setFromUser(user);
+
+    if (user) {
+      const id = await getUserIdByUsername(user);
+      setSenderId(id);
+    }
+  }
+  onload();
+}, [])
+
+  const handleIncrease = async () => {
     if (balance >= 1) {
       setTransferAmount(prev => prev + 1);
       setBalance(prev => prev - 1);
@@ -37,24 +61,51 @@ export default function HelpSection() {
     }
   };
 
+
+ const handleUserSearch = async () => {
+  const result = await DoesUserExist(searchInput);
+  setHasSearched(true);
+  console.log(result);
+  setSearchResult(result);
+}
+
+
   const triggerError = () => {
     setShake(true);
     setTimeout(() => setShake(false), 500);
   };
 
-  const handleTransfer = () => {
-   
-    if (!fromUser || !toUser || transferAmount === 0 || fromUser === toUser) {
-      return triggerError();
-    }
-    
-    setIsProcessing(true);
-   
-    setTimeout(() => {
-      setIsProcessing(false);
-      setIsSuccess(true);
-    }, 1500);
+  const handleTransfer = async () => {
+  if (!fromUser || !toUser || transferAmount === 0 || fromUser === toUser) {
+    return triggerError();
+  }
+
+  const transaction: TransactionDTO = {
+    senderId: senderId,
+    receiverUsername: toUser,
+    amount: transferAmount
   };
+
+  try {
+    setIsProcessing(true);
+
+   const res = await fetchTransfer(transaction);
+
+console.log("TRANSFER RESPONSE:", res);
+
+if (!res) {
+  throw new Error("Transfer failed");
+}
+
+    setIsSuccess(true);
+  } catch (err) {
+    console.error(err);
+    triggerError();
+  } finally {
+    setIsProcessing(false);
+  }
+
+};
 
   return (
     <div
@@ -80,32 +131,47 @@ export default function HelpSection() {
              
               {/* FROM */}
               <div className="flex flex-col gap-1">
-                <label className="text-black font-bold ml-1">From</label>
-                <select 
-                  className="w-full h-14 bg-white/80 border-2 border-black px-4 rounded-lg font-bold outline-none"
-                  value={fromUser}
-                  onChange={(e) => setFromUser(e.target.value)}
-                >
-                  <option value="" disabled>Select sender...</option>
-                  {users.map(user => (
-                    <option key={user} value={user}>{user}</option>
-                  ))}
-                </select>
+                <label className="text-black font-bold ml-1">From {fromUser}</label>
+                
               </div>
 
             
               <div className="flex flex-col gap-1">
                 <label className="text-black font-bold ml-1">To</label>
-                <select 
-                  className="w-full h-14 bg-white/80 border-2 border-black px-4 rounded-lg font-bold outline-none"
-                  value={toUser}
-                  onChange={(e) => setToUser(e.target.value)}
-                >
-                  <option value="" disabled>Select recipient...</option>
-                  {users.map(user => (
-                    <option key={user} value={user}>{user}</option>
-                  ))}
-                </select>
+                <div className="flex flex-col gap-2">
+  <input
+    value={searchInput}
+    onChange={(e) => setSearchInput(e.target.value)}
+    placeholder="Search username..."
+    className="w-full h-14 bg-white/80 border-2 border-black px-4 rounded-lg font-bold outline-none text-black"
+  />
+
+  <button
+    onClick={handleUserSearch}
+    className={`mt-4 w-full h-16 text-white font-bold rounded-xl border-2 border-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors bg-[#5F4F4F]`}
+  >
+    Search
+  </button>
+
+  {hasSearched && (
+    <div className="mt-2">
+      {searchResult ? (
+        <div className="flex items-center justify-between bg-white border-2 border-black text-black rounded-lg px-4 py-2">
+          <span className="font-bold">User Found!</span>
+
+          <button
+            onClick={() => setToUser(searchInput)}
+            className="bg-[#5F4F4F] text-white px-4 py-1 rounded-lg"
+          >
+            Select
+          </button>
+        </div>
+      ) : (
+        <p className="text-black font-bold text-center">No user found!</p>
+      )}
+    </div>
+  )}
+</div>
                 {fromUser && toUser && fromUser === toUser && (
                   <p className="text-red-600 text-xs font-bold ml-1">Cannot send to yourself!</p>
                 )}
