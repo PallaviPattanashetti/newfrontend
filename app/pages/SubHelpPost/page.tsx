@@ -196,7 +196,7 @@ const Page = () => {
           className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center"
         >
           <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
-            &ldquo; The future is in motion, and we're building it with you. Let's GO!.&rdquo;
+            &ldquo;The future is in motion, and we're building it with you. Let's GO!.&rdquo;
           </p>
         </motion.div>
     </div>
