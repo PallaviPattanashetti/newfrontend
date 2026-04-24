@@ -6,6 +6,7 @@ import { fetchTransaction, fetchTransfer, getUserIdByUsername } from "@/lib/tran
 import { TransactionDTO } from "@/interfaces/creditinterfaces";
 import { getStoredChatUsername } from "@/lib/user-services";
 import {DoesUserExist} from "@/lib/transactionservices"
+import { useCredits } from "@/context/creditcontext";
 
 
 export default function HelpSection() {
@@ -19,8 +20,8 @@ export default function HelpSection() {
   const [fromUser, setFromUser] = useState("");
   const [senderId, setSenderId] = useState<number>(0);
   const [toUser, setToUser] = useState("");
-  const [balance, setBalance] = useState(10.00);
-  const [transferAmount, setTransferAmount] = useState(0.00);
+const { credits, setCredits } = useCredits();  
+const [transferAmount, setTransferAmount] = useState(0.00);
   const [shake, setShake] = useState(false);
   const [searchInput, setSearchInput] = useState("");
 const [searchResult, setSearchResult] = useState<boolean>(false);
@@ -42,9 +43,8 @@ useEffect(() => {
 }, [])
 
   const handleIncrease = async () => {
-    if (balance >= 1) {
+    if (credits >= 1) {
       setTransferAmount(prev => prev + 1);
-      setBalance(prev => prev - 1);
       setShake(false);
     } else {
       triggerError();
@@ -54,7 +54,6 @@ useEffect(() => {
   const handleDecrease = () => {
     if (transferAmount >= 1) {
       setTransferAmount(prev => prev - 1);
-      setBalance(prev => prev + 1);
       setShake(false);
     } else {
       triggerError();
@@ -97,6 +96,13 @@ if (!res) {
   throw new Error("Transfer failed");
 }
 
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  user.credits = (user.credits || 0) - transferAmount;
+  localStorage.setItem("user", JSON.stringify(user));
+
+  window.dispatchEvent(new Event("auth-changed"));
+
+  setIsSuccess(true);
     setIsSuccess(true);
   } catch (err) {
     console.error(err);
@@ -207,7 +213,7 @@ if (!res) {
 
               <div className="w-full flex justify-end">
                 <div className="h-12 flex items-center px-4 bg-yellow-100 text-black rounded-lg font-mono border-2 border-black font-bold">
-                  Balance Left: {balance.toFixed(2)}
+                  Balance Left: {credits}
                 </div>
               </div>
 
@@ -256,7 +262,7 @@ if (!res) {
               transition={{ duration: 1 }}
             >
               <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
-                &ldquo;"Building a world where kindness is the ultimate credit."&rdquo;
+                &ldquo;Building a world where kindness is the ultimate credit.&rdquo;
               </p>
             </motion.div>
     </div>

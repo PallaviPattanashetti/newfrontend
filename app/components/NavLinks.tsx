@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
+import { useCredits } from "@/context/creditcontext";
 import {
   Button,
   Navbar,
@@ -21,6 +22,7 @@ const CREDIT_KEYS = [
   "totalCredits",
   "availableCredits",
 ];
+
 
 const resolveCreditValue = (value: unknown): number | null => {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -59,14 +61,14 @@ const readCreditBalance = (): string => {
 export function NavLinks() {
   const { push } = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [creditBalance, setCreditBalance] = useState("--");
   const [unreadDmCount, setUnreadDmCount] = useState(0);
+  const { credits } = useCredits();
+{credits.toFixed(2)}
 
   useEffect(() => {
     const refreshAuthState = async () => {
       const loggedIn = checkToken();
       setIsLoggedIn(loggedIn);
-      setCreditBalance(loggedIn ? readCreditBalance() : "--");
 
       if (!loggedIn) {
         setUnreadDmCount(0);
@@ -174,7 +176,7 @@ export function NavLinks() {
             <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/65">
               Credits
             </span>
-            <span className="text-sm font-black leading-none">{creditBalance}</span>
+            <span className="text-sm font-black leading-none">{credits}</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -198,7 +200,7 @@ export function NavLinks() {
             <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/65">
               Credits
             </span>
-            <span className="text-sm font-black leading-none">{creditBalance}</span>
+            <span className="text-sm font-black leading-none">{credits}</span>
           </div>
         </div>
 
