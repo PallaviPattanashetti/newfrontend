@@ -1,10 +1,14 @@
 "use client";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { checkToken, getProfile, saveProfile, uploadProfileImage } from "@/lib/user-services";
+import {
+  checkToken,
+  getProfile,
+  saveProfile,
+  uploadProfileImage,
+} from "@/lib/user-services";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
 
 const DEFAULT_IMAGE = "/assets/UserAccounts.jpeg";
 const ALLOWED_UPLOAD_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -41,7 +45,10 @@ const toSafeImageSrc = (value: string): string =>
 const toPersistableImageSrc = (value: string): string =>
   isPersistableImageSrc(value) ? value.trim() : DEFAULT_IMAGE;
 
-const pickString = (obj: Record<string, unknown> | null, keys: string[]): string => {
+const pickString = (
+  obj: Record<string, unknown> | null,
+  keys: string[],
+): string => {
   if (!obj) return "";
   for (const key of keys) {
     const value = obj[key];
@@ -67,26 +74,37 @@ export default function UpdateProfilePage() {
 
   useEffect(() => {
     const load = async () => {
-
-      
       if (!checkToken()) {
         push("/pages/Signin");
         return;
-
-        
       }
 
       const profile = await getProfile();
-      const resolvedName = pickString(profile, ["name", "displayName", "userName", "fullName"]);
-      const resolvedBio = pickString(profile, ["bio", "aboutMe", "description"]);
-      const resolvedImage = pickString(profile, ["profilePictureUrl", "imageUrl", "avatarUrl"]);
+      const resolvedName = pickString(profile, [
+        "name",
+        "displayName",
+        "userName",
+        "fullName",
+      ]);
+      const resolvedBio = pickString(profile, [
+        "bio",
+        "aboutMe",
+        "description",
+      ]);
+      const resolvedImage = pickString(profile, [
+        "profilePictureUrl",
+        "imageUrl",
+        "avatarUrl",
+      ]);
 
       setName(resolvedName || "");
       setBio(resolvedBio || "");
       setImage(resolvedImage || DEFAULT_IMAGE);
       setSelectedImageFile(null);
       setImageUrlInput(
-        resolvedImage && !resolvedImage.startsWith("data:") ? resolvedImage : ""
+        resolvedImage && !resolvedImage.startsWith("data:")
+          ? resolvedImage
+          : "",
       );
       setIsLoading(false);
     };
@@ -136,7 +154,9 @@ export default function UpdateProfilePage() {
       return;
     }
 
-    setStatusMessage("Please enter a full image URL starting with http:// or https://.");
+    setStatusMessage(
+      "Please enter a full image URL starting with http:// or https://.",
+    );
   };
 
   const handleSave = async () => {
@@ -153,10 +173,11 @@ export default function UpdateProfilePage() {
         profilePictureUrl = uploadedImageUrl;
       } else {
         setIsSaving(false);
-        setStatusMessage("Image upload failed. Verify blob upload endpoint route, form field name, and response URL key.");
+        setStatusMessage(
+          "Image upload failed. Verify blob upload endpoint route, form field name, and response URL key.",
+        );
         return;
       }
-      
     }
 
     const success = await saveProfile({
@@ -172,15 +193,20 @@ export default function UpdateProfilePage() {
       return;
     }
 
-    setStatusMessage("Could not save profile. Verify API DTO names and blob upload endpoint configuration.");
+    setStatusMessage(
+      "Could not save profile. Verify API DTO names and blob upload endpoint configuration.",
+    );
   };
 
   if (isLoading) {
     return (
       <div
         className="min-h-screen flex items-center justify-center text-white font-bold"
-        style={{ backgroundImage: "url('/assets/TBBackround.jpeg')", backgroundSize: "cover" }}
-      > 
+        style={{
+          backgroundImage: "url('/assets/TBBackround.jpeg')",
+          backgroundSize: "cover",
+        }}
+      >
         Loading profile...
       </div>
     );
@@ -189,7 +215,10 @@ export default function UpdateProfilePage() {
   return (
     <div
       className="min-h-screen flex flex-col items-center p-6"
-      style={{ backgroundImage: "url('/assets/TBBackround.jpeg')", backgroundSize: "cover" }}
+      style={{
+        backgroundImage: "url('/assets/TBBackround.jpeg')",
+        backgroundSize: "cover",
+      }}
     >
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -216,7 +245,14 @@ export default function UpdateProfilePage() {
       >
         <div className="relative">
           <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-            <Image src={toSafeImageSrc(image)} alt="Profile" fill sizes="128px" unoptimized className="object-cover" />
+            <Image
+              src={toSafeImageSrc(image)}
+              alt="Profile"
+              fill
+              sizes="128px"
+              unoptimized
+              className="object-cover"
+            />
           </div>
           <label className="absolute bottom-0 right-0 bg-[#28a8af] text-white w-10 h-10 rounded-full flex items-center justify-center border-4 border-white cursor-pointer shadow-xl hover:scale-110 transition-transform active:scale-95">
             <span className="text-2xl font-bold">+</span>
@@ -253,24 +289,17 @@ export default function UpdateProfilePage() {
           onChange={(e) => setName(e.target.value)}
           className="w-full p-3 bg-white/60 border-none rounded-xl focus:ring-2 focus:ring-[#28a8af] outline-none text-gray-800 font-bold mb-6"
         />
-
-
-//adding city here
-<label className="block text-[10px] font-black text-black uppercase mb-2 ml-1 tracking-[0.2em]">
-  City
-</label>
-<input
-  type="text"
-  value={city}
-  onChange={(e) => setCity(e.target.value)}
-  placeholder="Enter your city"
-  className="w-full p-3 bg-white/60 border-none rounded-xl focus:ring-2 focus:ring-[#28a8af] outline-none text-gray-800 font-bold mb-6"
-/>
-
-
-
-
-
+        //adding city here
+        <label className="block text-[10px] font-black text-black uppercase mb-2 ml-1 tracking-[0.2em]">
+          City
+        </label>
+        <input
+          type="text"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Enter your city"
+          className="w-full p-3 bg-white/60 border-none rounded-xl focus:ring-2 focus:ring-[#28a8af] outline-none text-gray-800 font-bold mb-6"
+        />
         <label className="block text-[10px] font-black text-black uppercase mb-2 ml-1 tracking-[0.2em]">
           Description
         </label>
@@ -279,7 +308,6 @@ export default function UpdateProfilePage() {
           onChange={(e) => setBio(e.target.value)}
           className="w-full p-3 bg-white/60 border-none rounded-xl focus:ring-2 focus:ring-[#28a8af] outline-none text-gray-800 h-28 resize-none mb-6 font-medium"
         />
-
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -289,25 +317,22 @@ export default function UpdateProfilePage() {
         >
           {isSaving ? "Saving..." : "Save Changes"}
         </motion.button>
-
         {statusMessage ? (
-          <p className="mt-4 text-sm text-black/80 text-center">{statusMessage}</p>
+          <p className="mt-4 text-sm text-black/80 text-center">
+            {statusMessage}
+          </p>
         ) : null}
       </motion.div>
       <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 1 }}
-            >
-              <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
-                &ldquo;The best way to find yourself is to lose yourself in the service of others.&rdquo;
-              </p>
-            </motion.div>
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
+        <p className="text-[30px] md:text-[40px] mt-10 text-black text-center italic font-medium">
+          &ldquo;The best way to find yourself is to lose yourself in the
+          service of others.&rdquo;
+        </p>
+      </motion.div>
     </div>
   );
 }
-
-
-
-
-
