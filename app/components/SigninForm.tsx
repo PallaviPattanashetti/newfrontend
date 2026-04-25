@@ -99,9 +99,19 @@ const SigninPage = () => {
           />
         </div>
 
-        <Button type="submit" className="w-full">
+        {/* <Button type="submit" className="w-full">
           {isSubmitting ? "Signing in..." : "Login"}
-        </Button>
+        </Button> */}
+<button
+  type="submit"
+  className="w-full max-w-[505px] h-[60px] bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-[15px] shadow-sm transition-colors cursor-pointer disabled:opacity-60"
+  disabled={isSubmitting}
+>
+  {isSubmitting ? "Signing in..." : "Login"}
+</button>
+
+
+
 
         {errorMessage ? (
           <p className="mt-3 text-sm text-red-200 bg-black/30 px-3 py-2 rounded-md">
@@ -109,7 +119,7 @@ const SigninPage = () => {
           </p>
         ) : null}
 
-        <p className="mt-4">
+        {/* <p className="mt-4">
           New user?
           <span
             className="underline ml-2 cursor-pointer"
@@ -117,7 +127,23 @@ const SigninPage = () => {
           >
             Register
           </span>
-        </p>
+        </p> */}
+
+
+<p className="mt-4 font-medium" style={{ color: "#1e3a5f" }}>
+  New user?
+  <span
+    className="underline ml-2 cursor-pointer font-semibold transition-colors"
+    style={{ color: "#1d4ed8" }}
+    onMouseEnter={e => (e.currentTarget.style.color = "#1e3a5f")}
+    onMouseLeave={e => (e.currentTarget.style.color = "#1d4ed8")}
+    onClick={() => push("/pages/Register")}
+  >
+    Register
+  </span>
+</p>
+
+
       </form>
           <motion.div
               initial={{ opacity: 0 }}
