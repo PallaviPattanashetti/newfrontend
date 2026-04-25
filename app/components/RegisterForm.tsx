@@ -86,7 +86,14 @@ const RegisterPage = () => {
           />
         </div>
 
-        <Button type="submit" className="w-full">Create Account</Button>
+        {/* <Button type="submit" className="w-full">Create Account</Button> */}
+
+        <button
+  type="submit"
+  className="w-full max-w-[505px] h-[60px] bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-lg rounded-[15px] shadow-md transition-colors cursor-pointer border-2 border-blue-400"
+>
+  Create Account
+</button>
 
         <p className="mt-4 text-black">
           Already have an account?
