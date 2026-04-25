@@ -39,6 +39,7 @@ export default function ProfilePage() {
   const { push } = useRouter();
   const [loginName, setLoginName] = useState<string>("");
   const [profileName, setProfileName] = useState<string>("");
+  
 
 const [city, setCity] = useState<string>("");
 
