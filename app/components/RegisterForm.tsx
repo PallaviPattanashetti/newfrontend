@@ -88,9 +88,12 @@ const RegisterPage = () => {
 
         {/* <Button type="submit" className="w-full">Create Account</Button> */}
 
-        <button
+ <button
   type="submit"
-  className="w-full max-w-[505px] h-[60px] bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-lg rounded-[15px] shadow-md transition-colors cursor-pointer border-2 border-blue-400"
+  style={{ backgroundColor: "#1d4ed8", color: "white" }}
+  className="w-full max-w-[505px] h-[60px] font-bold text-lg rounded-[15px] shadow-md cursor-pointer border-2"
+  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#1e40af")}
+  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1d4ed8")}
 >
   Create Account
 </button>
