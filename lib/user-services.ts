@@ -52,6 +52,7 @@ export type ProfilePayload = {
 export type DiscoverableProfile = {
     id: string;
     profileName: string;
+    username: string;
     description: string;
     profilePictureUrl: string;
 };
@@ -82,12 +83,16 @@ export const safeFetch = async (input: RequestInfo | URL, init?: RequestInit) =>
     } catch (error) {
         const errorName = error instanceof Error ? error.name : typeof error;
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error("API request failed", {
+        const isOnline = typeof navigator !== "undefined" ? navigator.onLine : undefined;
+
+        // Network failures (CORS/offline/DNS) are expected sometimes in dev.
+        // Keep this as a warning so it does not trigger noisy runtime error overlays.
+        console.warn("API request failed", {
             endpoint: String(input),
             method: init?.method ?? "GET",
             errorName,
             errorMessage,
-            error,
+            isOnline,
         });
         return null;
     }
@@ -559,6 +564,7 @@ const toDiscoverableProfile = (obj: Record<string, unknown>): DiscoverableProfil
     ];
 
     let profileName = "";
+    let username = "";
     let description = "";
     let profilePictureUrl = "";
     let profileId = "";
@@ -569,9 +575,16 @@ const toDiscoverableProfile = (obj: Record<string, unknown>): DiscoverableProfil
                 "profileName",
                 "displayName",
                 "name",
+                "fullName",
+            ]);
+        }
+
+        if (!username) {
+            username = pickText(candidate, [
                 "userName",
                 "username",
-                "fullName",
+                "loginName",
+                "email",
             ]);
         }
 
@@ -605,6 +618,7 @@ const toDiscoverableProfile = (obj: Record<string, unknown>): DiscoverableProfil
     return {
         id: profileId || `${profileName}-${description}`,
         profileName,
+        username,
         description,
         profilePictureUrl,
     };
@@ -694,7 +708,11 @@ export const getDiscoverableProfiles = async (searchName = "", options: Profiles
         return profiles;
     }
 
-    return profiles.filter((profile) => profile.profileName.toLowerCase().includes(query));
+    return profiles.filter((profile) => {
+        const searchableProfileName = profile.profileName.toLowerCase();
+        const searchableUsername = profile.username.toLowerCase();
+        return searchableProfileName.includes(query) || searchableUsername.includes(query);
+    });
 };
 
 export const getStoredChatUsername = () => {

@@ -2,6 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 import { fetchTransaction, fetchTransfer, getUserIdByUsername } from "@/lib/transactionservices";
 import { TransactionDTO } from "@/interfaces/creditinterfaces";
 import { getStoredChatUsername } from "@/lib/user-services";
@@ -10,6 +11,8 @@ import { useCredits } from "@/context/creditcontext";
 
 
 export default function HelpSection() {
+  const searchParams = useSearchParams();
+  const creditRecipient = searchParams.get("to")?.trim() ?? "";
   const [isSuccess, setIsSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   
@@ -41,6 +44,16 @@ useEffect(() => {
   }
   onload();
 }, [])
+
+useEffect(() => {
+  if (!creditRecipient) {
+    return;
+  }
+
+  setSearchInput(creditRecipient);
+  setToUser(creditRecipient);
+  setHasSearched(false);
+}, [creditRecipient]);
 
   const handleIncrease = async () => {
     if (credits >= 1) {

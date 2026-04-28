@@ -21,6 +21,13 @@ const CREDIT_KEYS = [
   "availableCredits",
 ];
 
+const PROFILE_PICTURE_KEYS = [
+  "profilePictureUrl",
+  "profileImageUrl",
+  "avatarUrl",
+  "imageUrl",
+];
+
 
 const resolveCreditValue = (value: unknown): number | null => {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -56,13 +63,33 @@ const readCreditBalance = (): string => {
   return "--";
 };
 
+const readProfilePictureUrl = (): string => {
+  const user = loggedInData() as Record<string, unknown> | null;
+  if (!user) {
+    return "";
+  }
+
+  for (const key of PROFILE_PICTURE_KEYS) {
+    const value = user[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return "";
+};
+
 export function NavLinks() {
   const { push } = useRouter();
   const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [unreadDmCount, setUnreadDmCount] = useState(0);
   const { credits } = useCredits();
-{credits.toFixed(2)}
+  const fallbackCredits = readCreditBalance();
+  const displayedCredits = Number.isFinite(credits)
+    ? Number(credits).toFixed(2)
+    : fallbackCredits;
+  const profilePictureUrl = readProfilePictureUrl();
 
   useEffect(() => {
     const refreshAuthState = async () => {
@@ -120,8 +147,8 @@ export function NavLinks() {
 
  {
         icon: "/assets/CreatePost.png",
-        label: "Create Post",
-        path: "/pages/SubHelpPost",
+   label: "Help Posts",
+  path: "/pages/HelpPosts",
       },
 
 
@@ -175,14 +202,27 @@ export function NavLinks() {
         className="relative border-none bg-transparent! px-4 py-4 shadow-none dark:bg-transparent! md:px-6 [&_ul]:m-0 [&_ul]:list-none [&_ul]:p-0 [&_li]:list-none"
       >
         <div className="flex w-full items-center justify-between md:hidden">
-          <div className="flex min-w-28 flex-col rounded-full border border-black/10 bg-white/45 px-4 py-2 text-black shadow-sm backdrop-blur-sm">
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/65">
-              Credits
-            </span>
-            <span className="text-sm font-black leading-none">{credits}</span>
-          </div>
+          <button
+            type="button"
+            onClick={() => push("/pages/Edit")}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/50 shadow-sm backdrop-blur-sm"
+            aria-label="Go to profile"
+          >
+            <img
+              src={profilePictureUrl || "/assets/icons8-profile-100.png"}
+              alt="Profile"
+              className="h-10 w-10 rounded-full object-cover"
+            />
+          </button>
 
           <div className="flex items-center gap-2">
+            <div className="flex min-w-24 flex-col rounded-full border border-black/10 bg-white/45 px-3 py-1.5 text-black shadow-sm backdrop-blur-sm">
+              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-black/65">
+                Credits
+              </span>
+              <span className="text-xs font-black leading-none">{displayedCredits}</span>
+            </div>
+
             {isLoggedIn ? (
               <button
                 onClick={handleLogout}
@@ -197,15 +237,28 @@ export function NavLinks() {
         </div>
 
         <div className="absolute left-6 top-1/2 hidden -translate-y-1/2 md:flex">
+          <button
+            type="button"
+            onClick={() => push("/pages/Edit")}
+            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-black/10 bg-white/50 shadow-sm backdrop-blur-sm"
+            aria-label="Go to profile"
+          >
+            <img
+              src={profilePictureUrl || "/assets/icons8-profile-100.png"}
+              alt="Profile"
+              className="h-11 w-11 rounded-full object-cover"
+            />
+          </button>
+        </div>
+
+        <div className="absolute right-6 top-1/2 hidden -translate-y-1/2 items-center gap-2 md:flex">
           <div className="flex min-w-32 flex-col rounded-full border border-black/10 bg-white/45 px-4 py-2 text-black shadow-sm backdrop-blur-sm">
             <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/65">
               Credits
             </span>
-            <span className="text-sm font-black leading-none">{credits}</span>
+            <span className="text-sm font-black leading-none">{displayedCredits}</span>
           </div>
-        </div>
 
-        <div className="absolute right-6 top-1/2 hidden -translate-y-1/2 items-center gap-2 md:flex">
           {isLoggedIn ? (
             <button
               onClick={handleLogout}
@@ -225,7 +278,7 @@ export function NavLinks() {
           >
             {visibleNavItems.map((item) => (
               <NavbarLink
-                key={item.path}
+                key={`${item.path}-${item.label}`}
                 as={Link}
                 href={item.path}
                 className="list-none flex shrink-0 items-center justify-center border-none bg-transparent p-0 no-underline shadow-none"

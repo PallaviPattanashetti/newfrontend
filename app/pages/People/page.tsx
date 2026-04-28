@@ -9,7 +9,7 @@ import {
   getProfile,
   getDiscoverableProfiles,
 } from "@/lib/user-services";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const DEFAULT_IMAGE = "/assets/UserAccounts.jpeg";
 
@@ -96,12 +96,14 @@ const loadDefaultProfiles = async (
 
 export default function People() {
   const { push } = useRouter();
+  const searchParams = useSearchParams();
+  const querySearch = searchParams.get("q")?.trim() ?? "";
   const skipNextEmptySearchRef = useRef(false);
   const [visibleProfiles, setVisibleProfiles] = useState<DiscoverableProfile[]>(
     [],
   );
   const [currentUserKeys, setCurrentUserKeys] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(querySearch);
   const [locationCoords, setLocationCoords] = useState<{
     lat: number;
     long: number;
@@ -166,6 +168,12 @@ export default function People() {
 
     void initialize();
   }, [push]);
+
+  useEffect(() => {
+    if (querySearch) {
+      setSearchTerm(querySearch);
+    }
+  }, [querySearch]);
 
   useEffect(() => {
     const debounceId = window.setTimeout(async () => {
@@ -240,7 +248,7 @@ export default function People() {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by profile name..."
+          placeholder="Search by profile name or username..."
           className="w-full p-3 bg-white/60 border-none rounded-xl focus:ring-2 focus:ring-[#28a8af] outline-none text-gray-800 font-medium"
         />
         <button
