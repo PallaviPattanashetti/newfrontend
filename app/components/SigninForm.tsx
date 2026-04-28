@@ -38,7 +38,9 @@ const SigninPage = () => {
       if (token) {
         push("/pages/Edit");
       } else {
-        setErrorMessage("Sign in failed. Check credentials or API availability.");
+        setErrorMessage(
+          "Sign in failed. Check credentials or API availability.",
+        );
       }
     } catch {
       setErrorMessage(`Could not reach API at ${getApiBaseUrl()}.`);
@@ -93,25 +95,17 @@ const SigninPage = () => {
             placeholder="Password"
             required
             className={inputBase}
-            onChange={(e) =>
-              setSignin({ ...signin, password: e.target.value })
-            }
+            onChange={(e) => setSignin({ ...signin, password: e.target.value })}
           />
         </div>
 
-        {/* <Button type="submit" className="w-full">
+        <button
+          type="submit"
+          className="w-full max-w-[505px] h-[60px] bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-[15px] shadow-sm transition-colors cursor-pointer disabled:opacity-60"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Signing in..." : "Login"}
-        </Button> */}
-<button
-  type="submit"
-  className="w-full max-w-[505px] h-[60px] bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-[15px] shadow-sm transition-colors cursor-pointer disabled:opacity-60"
-  disabled={isSubmitting}
->
-  {isSubmitting ? "Signing in..." : "Login"}
-</button>
-
-
-
+        </button>
 
         {errorMessage ? (
           <p className="mt-3 text-sm text-red-200 bg-black/30 px-3 py-2 rounded-md">
@@ -119,46 +113,31 @@ const SigninPage = () => {
           </p>
         ) : null}
 
-        {/* <p className="mt-4">
+        <p className="mt-4 font-medium" style={{ color: "#1e3a5f" }}>
           New user?
           <span
-            className="underline ml-2 cursor-pointer"
+            className="underline ml-2 cursor-pointer font-semibold transition-colors"
+            style={{ color: "#1d4ed8" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#1e3a5f")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#1d4ed8")}
             onClick={() => push("/pages/Register")}
           >
             Register
           </span>
-        </p> */}
-
-
-<p className="mt-4 font-medium" style={{ color: "#1e3a5f" }}>
-  New user?
-  <span
-    className="underline ml-2 cursor-pointer font-semibold transition-colors"
-    style={{ color: "#1d4ed8" }}
-    onMouseEnter={e => (e.currentTarget.style.color = "#1e3a5f")}
-    onMouseLeave={e => (e.currentTarget.style.color = "#1d4ed8")}
-    onClick={() => push("/pages/Register")}
-  >
-    Register
-  </span>
-</p>
-
-
+        </p>
       </form>
-          <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <p className="text-[32px] md:text-[40px] mt-10 text-gray-900 text-center font-light italic">
-                &ldquo;Start where you are. Use what you have. Do what you can. &rdquo;
-              </p>
-            </motion.div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <p className="text-[32px] md:text-[40px] mt-10 text-gray-900 text-center font-light italic">
+          &ldquo;Start where you are. Use what you have. Do what you can.
+          &rdquo;
+        </p>
+      </motion.div>
     </div>
   );
 };
 
 export default SigninPage;
-
-
-
