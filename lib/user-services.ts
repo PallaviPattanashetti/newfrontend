@@ -43,6 +43,11 @@ type BlobUploadResponse = {
     data?: Record<string, unknown>;
 };
 
+export type UploadProfileImageResult = {
+    imageUrl: string | null;
+    error: string;
+};
+
 export type ProfilePayload = {
     name: string;
     bio: string;
@@ -52,8 +57,11 @@ export type ProfilePayload = {
 export type DiscoverableProfile = {
     id: string;
     profileName: string;
+    username: string;
     description: string;
     profilePictureUrl: string;
+    latitude?: number;
+    longitude?: number;
 };
 
 export type ProfilesQueryOptions = {
@@ -82,12 +90,16 @@ export const safeFetch = async (input: RequestInfo | URL, init?: RequestInit) =>
     } catch (error) {
         const errorName = error instanceof Error ? error.name : typeof error;
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error("API request failed", {
+        const isOnline = typeof navigator !== "undefined" ? navigator.onLine : undefined;
+
+        // Network failures (CORS/offline/DNS) are expected sometimes in dev.
+        // Keep this as a warning so it does not trigger noisy runtime error overlays.
+        console.warn("API request failed", {
             endpoint: String(input),
             method: init?.method ?? "GET",
             errorName,
             errorMessage,
-            error,
+            isOnline,
         });
         return null;
     }
@@ -328,6 +340,7 @@ export const getProfile = async () => {
     const res = await safeFetch(`${BASE_URL}/api/user/profile`, {
         method: "GET",
         headers: authHeaders(),
+        cache: "no-store",
     });
 
     if (!res) {
@@ -384,6 +397,12 @@ export const saveProfile = async (profile: ProfilePayload) => {
     }
 
     if (await wasSuccessfulResponse(putRes)) {
+        // After successful save, refresh the profile data in localStorage
+        const freshProfile = await getProfile();
+        if (freshProfile && typeof window !== "undefined") {
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(freshProfile));
+            window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+        }
         return true;
     }
 
@@ -397,7 +416,17 @@ export const saveProfile = async (profile: ProfilePayload) => {
         return false;
     }
 
-    return await wasSuccessfulResponse(postRes);
+    if (await wasSuccessfulResponse(postRes)) {
+        // After successful save, refresh the profile data in localStorage
+        const freshProfile = await getProfile();
+        if (freshProfile && typeof window !== "undefined") {
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(freshProfile));
+            window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+        }
+        return true;
+    }
+
+    return false;
 };
 
 const pickText = (obj: Record<string, unknown> | null | undefined, keys: string[]) => {
@@ -464,10 +493,18 @@ const getBlobUploadCandidates = () => {
     const candidates = [
         BLOB_UPLOAD_ENDPOINT,
         `${BASE_URL}/api/user/profile-picture`,
+        `${BASE_URL}/api/user/upload-profile-picture`,
+        `${BASE_URL}/api/user/profile-picture/upload`,
+        `${BASE_URL}/api/user/profile/upload`,
+        `${BASE_URL}/api/user/upload`,
         `${BASE_URL}/api/blob/upload`,
+        `${BASE_URL}/api/blobs/upload`,
         `${BASE_URL}/api/blobstorage/upload`,
         `${BASE_URL}/api/image/upload`,
         `${BASE_URL}/api/images/upload`,
+        `${BASE_URL}/api/upload/image`,
+        `${BASE_URL}/api/upload/profile-picture`,
+        `${BASE_URL}/api/upload/profile-image`,
         `${BASE_URL}/api/user/profile-image/upload`,
     ];
 
@@ -500,14 +537,18 @@ const extractImageUrlFromPayload = (payload: unknown): string => {
     return "";
 };
 
-export const uploadProfileImage = async (file: File): Promise<string | null> => {
+export const uploadProfileImage = async (file: File): Promise<UploadProfileImageResult> => {
     const endpoints = getBlobUploadCandidates();
     if (endpoints.length === 0) {
-        return null;
+        return {
+            imageUrl: null,
+            error: "No blob upload endpoint is configured.",
+        };
     }
 
     const token = getToken();
     const uploadFieldNames = ["file", "image", "profileImage", "profilePicture", "upload"];
+    let lastError = "Upload failed. Endpoint did not return a usable image URL.";
 
     for (const endpoint of endpoints) {
         for (const fieldName of uploadFieldNames) {
@@ -527,25 +568,53 @@ export const uploadProfileImage = async (file: File): Promise<string | null> => 
                 });
 
                 if (!res) {
+                    lastError = "Unable to reach blob upload endpoint.";
                     continue;
                 }
 
                 if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) {
+                        return {
+                            imageUrl: null,
+                            error: "You are not authorized to upload. Please sign in again.",
+                        };
+                    }
+
+                    const errorSample = await res
+                        .clone()
+                        .text()
+                        .then((value) => value.slice(0, 180))
+                        .catch(() => "");
+
+                    const endpointHint = `Endpoint: ${endpoint} (field: ${fieldName}).`;
+                    lastError = errorSample
+                        ? `Upload endpoint rejected the file (${res.status}). ${endpointHint} ${errorSample}`
+                        : `Upload endpoint rejected the file (${res.status}). ${endpointHint}`;
                     continue;
                 }
 
                 const payload = await parseJsonSafely<BlobUploadResponse | Record<string, unknown>>(res);
                 const imageUrl = extractImageUrlFromPayload(payload);
                 if (imageUrl) {
-                    return imageUrl;
+                    return {
+                        imageUrl,
+                        error: "",
+                    };
                 }
+
+                lastError =
+                    "Upload succeeded but response did not contain image URL. Expected one of: url, imageUrl, blobUrl, profilePictureUrl.";
             } catch {
                 // Ignore candidate endpoint failures and try the next endpoint.
+                lastError = `Upload call failed for endpoint ${endpoint}.`;
             }
         }
     }
 
-    return null;
+    return {
+        imageUrl: null,
+        error: lastError,
+    };
 };
 
 const toDiscoverableProfile = (obj: Record<string, unknown>): DiscoverableProfile | null => {
@@ -559,6 +628,7 @@ const toDiscoverableProfile = (obj: Record<string, unknown>): DiscoverableProfil
     ];
 
     let profileName = "";
+    let username = "";
     let description = "";
     let profilePictureUrl = "";
     let profileId = "";
@@ -569,9 +639,16 @@ const toDiscoverableProfile = (obj: Record<string, unknown>): DiscoverableProfil
                 "profileName",
                 "displayName",
                 "name",
+                "fullName",
+            ]);
+        }
+
+        if (!username) {
+            username = pickText(candidate, [
                 "userName",
                 "username",
-                "fullName",
+                "loginName",
+                "email",
             ]);
         }
 
@@ -605,6 +682,7 @@ const toDiscoverableProfile = (obj: Record<string, unknown>): DiscoverableProfil
     return {
         id: profileId || `${profileName}-${description}`,
         profileName,
+        username,
         description,
         profilePictureUrl,
     };
@@ -694,7 +772,11 @@ export const getDiscoverableProfiles = async (searchName = "", options: Profiles
         return profiles;
     }
 
-    return profiles.filter((profile) => profile.profileName.toLowerCase().includes(query));
+    return profiles.filter((profile) => {
+        const searchableProfileName = profile.profileName.toLowerCase();
+        const searchableUsername = profile.username.toLowerCase();
+        return searchableProfileName.includes(query) || searchableUsername.includes(query);
+    });
 };
 
 export const getStoredChatUsername = () => {

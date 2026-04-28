@@ -1,55 +1,55 @@
 "use client";
+
 import { createContext, useContext, useEffect, useState } from "react";
-import { loggedInData } from "@/lib/user-services";
+import {GetUserCredits } from "@/lib/transactionservices";
+import { getStoredChatUsername } from "@/lib/user-services";
+
 
 type CreditContextType = {
   credits: number;
   setCredits: (value: number) => void;
-  refreshCredits: () => void;
+  refreshCredits: () => Promise<void>;
 };
 
 const CreditContext = createContext<CreditContextType | null>(null);
 
-const CREDIT_KEYS = [
-  "credits",
-  "credit",
-  "creditBalance",
-  "balance",
-  "totalCredits",
-  "availableCredits",
-];
-
-const resolveCreditValue = (value: unknown): number | null => {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string") {
-    const parsed = Number(value.trim());
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-  return null;
-};
-
-const getCreditsFromUser = (): number => {
-  const user = loggedInData() as Record<string, unknown> | null;
-  if (!user) return 0;
-
-  for (const key of CREDIT_KEYS) {
-    const val = resolveCreditValue(user[key]);
-    if (val !== null) return val;
-  }
-
-  return 0;
-};
-
 export function CreditProvider({ children }: { children: React.ReactNode }) {
-  const [credits, setCredits] = useState<number>(0);
+  const [credits, setCreditsState] = useState<number>(0);
+  const [username, setUsername] = useState<string | null>(null);
 
-  const refreshCredits = () => {
-    setCredits(getCreditsFromUser());
+  useEffect(() => {
+    async function loadUsername() {
+      const user = await getStoredChatUsername();
+      setUsername(user);
+    }
+
+    loadUsername();
+  }, []);
+
+  const refreshCredits = async () => {
+    if (!username) return;
+
+    try {
+      const res = await GetUserCredits(username);
+
+      const value = res;
+
+      setCreditsState(value);
+    } catch (err) {
+      console.error("Failed to fetch credits:", err);
+      setCreditsState(0);
+    }
   };
 
   useEffect(() => {
-    refreshCredits();
-  }, []);
+    if (username) {
+      refreshCredits();
+    }
+  }, [username]);
+
+  const setCredits = (value: number) => {
+    setCreditsState(value);
+  };
 
   return (
     <CreditContext.Provider value={{ credits, setCredits, refreshCredits }}>

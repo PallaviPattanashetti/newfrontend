@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import {
@@ -9,7 +9,8 @@ import {
   getProfile,
   getDiscoverableProfiles,
 } from "@/lib/user-services";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getCityFromCoordinates } from "@/lib/mapServices";
 
 const DEFAULT_IMAGE = "/assets/UserAccounts.jpeg";
 
@@ -94,14 +95,16 @@ const loadDefaultProfiles = async (
   });
 };
 
-export default function People() {
+function PeoplePageContent() {
   const { push } = useRouter();
+  const searchParams = useSearchParams();
+  const querySearch = searchParams.get("q")?.trim() ?? "";
   const skipNextEmptySearchRef = useRef(false);
   const [visibleProfiles, setVisibleProfiles] = useState<DiscoverableProfile[]>(
     [],
   );
   const [currentUserKeys, setCurrentUserKeys] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(querySearch);
   const [locationCoords, setLocationCoords] = useState<{
     lat: number;
     long: number;
@@ -109,6 +112,7 @@ export default function People() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const [profileCities, setProfileCities] = useState<Map<string, string>>(new Map());
 
   const hasQuery = useMemo(() => searchTerm.trim().length > 0, [searchTerm]);
 
@@ -168,6 +172,12 @@ export default function People() {
   }, [push]);
 
   useEffect(() => {
+    if (querySearch) {
+      setSearchTerm(querySearch);
+    }
+  }, [querySearch]);
+
+  useEffect(() => {
     const debounceId = window.setTimeout(async () => {
       if (isLoading) {
         return;
@@ -196,6 +206,33 @@ export default function People() {
 
     return () => window.clearTimeout(debounceId);
   }, [searchTerm, isLoading, locationCoords, currentUserKeys]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchCities = async () => {
+      const newCities = new Map<string, string>();
+
+      for (const profile of visibleProfiles) {
+        if (profile.latitude !== undefined && profile.longitude !== undefined && profile.latitude !== null && profile.longitude !== null) {
+          const city = await getCityFromCoordinates(profile.latitude, profile.longitude);
+          if (!isCancelled) {
+            newCities.set(profile.id, city);
+          }
+        }
+      }
+
+      if (!isCancelled) {
+        setProfileCities(newCities);
+      }
+    };
+
+    void fetchCities();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [visibleProfiles]);
 
   const refreshRandomUsers = async () => {
     setIsRefreshing(true);
@@ -240,7 +277,7 @@ export default function People() {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by profile name..."
+          placeholder="Search by profile name or username..."
           className="w-full p-3 bg-white/60 border-none rounded-xl focus:ring-2 focus:ring-[#28a8af] outline-none text-gray-800 font-medium"
         />
         <button
@@ -294,6 +331,12 @@ export default function People() {
                 <h3 className="text-gray-900 font-bold text-base text-center leading-tight">
                   {person.profileName}
                 </h3>
+                <p className="text-gray-500 text-xs text-center">@{person.username}</p>
+                {profileCities.get(person.id) && (
+                  <p className="text-gray-600 text-xs text-center">
+                    📍 {profileCities.get(person.id)}
+                  </p>
+                )}
               </div>
 
               <div className="flex-1 px-4 md:px-12 py-6 md:py-0">
@@ -303,7 +346,9 @@ export default function People() {
               </div>
 
               <div className="shrink-0 w-full md:w-auto">
-                <button className="w-full md:px-10 py-3.5 rounded-full bg-[#28a8af] text-white font-bold text-sm shadow-lg shadow-[#28a8af]/30 hover:bg-[#218e94] transition-colors">
+                <button 
+                  onClick={() => push(`/pages/Message?contact=${encodeURIComponent(person.username)}`)}
+                  className="w-full md:px-10 py-3.5 rounded-full bg-[#28a8af] text-white font-bold text-sm shadow-lg shadow-[#28a8af]/30 hover:bg-[#218e94] transition-colors">
                   Message
                 </button>
               </div>
@@ -322,5 +367,22 @@ export default function People() {
               </p>
             </motion.div>
     </div>
+  );
+}
+
+export default function People() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="min-h-screen flex items-center justify-center text-white font-bold"
+          style={{ backgroundImage: "url('/assets/TBBackround.jpeg')", backgroundSize: "cover" }}
+        >
+          Loading nearby users...
+        </div>
+      }
+    >
+      <PeoplePageContent />
+    </Suspense>
   );
 }

@@ -1,25 +1,72 @@
 
 "use client";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { NavLinks } from "@/app/components/NavLinks";
+import { DEFAULT_HELP_CATEGORIES, type HelpPostType } from "@/interfaces/help-post-interfaces";
+import { getHelpCategories } from "@/lib/help-post-services";
+
+const CATEGORY_IMAGE_BY_KEY: Record<string, string> = {
+  home: "/assets/HomeHelp.gif",
+  learning: "/assets/LearningHelp.gif",
+  garden: "/assets/GardenHelp.gif",
+  pet: "/assets/PetHelp.gif",
+  creative: "/assets/CreativeHelp.gif",
+  fitness: "/assets/FitnessHelp.gif",
+  other: "/assets/offer.gif",
+};
+
+const titleCase = (value: string) =>
+  value
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map((part) => `${part[0]?.toUpperCase() ?? ""}${part.slice(1).toLowerCase()}`)
+    .join(" ");
 
 export default function HelpCategory() {
   const router = useRouter();
-  
-  const [helpType, setHelpType] = useState<"get" | "offer" | null>(null);
+  const [helpType, setHelpType] = useState<HelpPostType | null>(null);
+  const [categories, setCategories] = useState<string[]>([]);
 
   const topSectionImages = ["/assets/Get.gif", "/assets/offer.gif"];
 
-  const bottomCardData = [
-    { img: "/assets/HomeHelp.gif", title: "Home Help", path: "./SubHelpPost" },
-    { img: "/assets/LearningHelp.gif", title: "Learning Help", path: "./SubHelpPost" },
-    { img: "/assets/GardenHelp.gif", title: "Garden Help", path: "./SubHelpPost" },
-    { img: "/assets/PetHelp.gif", title: "Pet Help", path: "./SubHelpPost" },
-    { img: "/assets/CreativeHelp.gif", title: "Creative Help", path: "./SubHelpPost" },
-    { img: "/assets/FitnessHelp.gif", title: "Fitness Help", path: "./SubHelpPost" },
-  ];
+  useEffect(() => {
+    let isCancelled = false;
+
+    const loadCategories = async () => {
+      const apiCategories = await getHelpCategories();
+      if (isCancelled) {
+        return;
+      }
+
+      const merged = [...new Set([...DEFAULT_HELP_CATEGORIES, ...apiCategories.map((item) => item.toLowerCase())])];
+      setCategories(merged);
+    };
+
+    void loadCategories();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  const selectableCategories = useMemo(() => {
+    const base = categories.length > 0 ? categories : [...DEFAULT_HELP_CATEGORIES];
+    return [...base, "other"];
+  }, [categories]);
+
+  const openCreatePost = (category: string) => {
+    if (!helpType) {
+      return;
+    }
+
+    const params = new URLSearchParams({
+      postType: helpType,
+      category,
+    });
+
+    router.push(`/pages/SubHelpPost?${params.toString()}`);
+  };
 
   return (
     <div
@@ -46,9 +93,9 @@ export default function HelpCategory() {
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setHelpType("get")}
+          onClick={() => setHelpType("request")}
           className={`w-56 h-50.5 cursor-pointer transition-all duration-300 border-4 rounded-lg bg-white overflow-hidden flex flex-col ${
-            helpType === "get" ? "border-blue-600 shadow-xl" : "border-black"
+            helpType === "request" ? "border-blue-600 shadow-xl" : "border-black"
           }`}
         >
           <div className="w-full h-35 overflow-hidden bg-gray-100">
@@ -65,7 +112,11 @@ export default function HelpCategory() {
 
         <div className="flex flex-col items-center justify-center">
           <p className="text-4xl md:text-[60px] font-bold text-black text-center px-4 leading-tight uppercase">
-            {helpType === "get" ? "I Need Help" : helpType === "offer" ? "I Want to Help" : "Choose your help"}
+            {helpType === "request"
+              ? "I Need Help"
+              : helpType === "offer"
+                ? "I Want to Help"
+                : "Choose your help"}
           </p>
           {helpType && (
             <button onClick={() => setHelpType(null)} className="text-xs font-bold underline mt-2 text-black/60">
@@ -97,9 +148,9 @@ export default function HelpCategory() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-12 w-full max-w-250 justify-items-center mb-12">
-        {bottomCardData.map((item) => (
+        {selectableCategories.map((category) => (
           <motion.div
-            key={item.title}
+            key={category}
             initial={{ opacity: 0.3 }}
             animate={{ opacity: helpType ? 1 : 0.3 }}
             className={`w-75 h-108 bg-[#F4F4F4]/50 border-2 rounded-2xl border-black flex flex-col transition-all overflow-hidden ${
@@ -109,23 +160,23 @@ export default function HelpCategory() {
            
             <div className="w-full h-51.5 border-b-2 border-black overflow-hidden bg-white">
               <img 
-                src={item.img} 
-                alt={item.title} 
+                src={CATEGORY_IMAGE_BY_KEY[category] ?? "/assets/Get.gif"}
+                alt={`${titleCase(category)} help`}
                 className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-110" 
               />
             </div>
             
             <div className="p-4 flex flex-col items-center justify-between grow">
-              <h5 className="text-xl font-bold text-gray-900 text-center uppercase">{item.title}</h5>
+              <h5 className="text-xl font-bold text-gray-900 text-center uppercase">{titleCase(category)} Help</h5>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => router.push(item.path)}
+                onClick={() => openCreatePost(category)}
                 className={`w-47.5 h-15 border-[3px] border-black rounded-2xl text-black font-bold text-[36px] flex items-center justify-center transition-colors ${
-                  helpType === "get" ? "bg-blue-400 hover:bg-blue-500" : "bg-green-400 hover:bg-green-500"
+                  helpType === "request" ? "bg-blue-400 hover:bg-blue-500" : "bg-green-400 hover:bg-green-500"
                 }`}
               >
-                Click
+                Select
               </motion.button>
             </div>
 

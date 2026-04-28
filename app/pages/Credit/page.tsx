@@ -1,7 +1,8 @@
 
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 import { fetchTransaction, fetchTransfer, getUserIdByUsername } from "@/lib/transactionservices";
 import { TransactionDTO } from "@/interfaces/creditinterfaces";
 import { getStoredChatUsername } from "@/lib/user-services";
@@ -9,7 +10,9 @@ import {DoesUserExist} from "@/lib/transactionservices"
 import { useCredits } from "@/context/creditcontext";
 
 
-export default function HelpSection() {
+function CreditPageContent() {
+  const searchParams = useSearchParams();
+  const creditRecipient = searchParams.get("to")?.trim() ?? "";
   const [isSuccess, setIsSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   
@@ -41,6 +44,16 @@ useEffect(() => {
   }
   onload();
 }, [])
+
+useEffect(() => {
+  if (!creditRecipient) {
+    return;
+  }
+
+  setSearchInput(creditRecipient);
+  setToUser(creditRecipient);
+  setHasSearched(false);
+}, [creditRecipient]);
 
   const handleIncrease = async () => {
     if (credits >= 1) {
@@ -96,10 +109,7 @@ if (!res) {
   throw new Error("Transfer failed");
 }
 
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  user.credits = (user.credits || 0) - transferAmount;
-  localStorage.setItem("user", JSON.stringify(user));
-
+  setCredits(credits - transferAmount);
   window.dispatchEvent(new Event("auth-changed"));
 
   setIsSuccess(true);
@@ -266,5 +276,22 @@ if (!res) {
               </p>
             </motion.div>
     </div>
+  );
+}
+
+export default function CreditPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="min-h-screen flex items-center justify-center text-white font-bold"
+          style={{ backgroundImage: "url('/assets/TBBackround.jpeg')", backgroundSize: "cover" }}
+        >
+          Loading credits...
+        </div>
+      }
+    >
+      <CreditPageContent />
+    </Suspense>
   );
 }

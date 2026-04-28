@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import type { DmInboxItem, DmMessage } from "@/lib/dm-services";
 
 type DmConversationPanelProps = {
@@ -54,6 +55,7 @@ export function DmConversationPanel({
   onSend,
   selectedUsername,
 }: DmConversationPanelProps) {
+  const router = useRouter();
   const headerName = activeConversation?.otherDisplayName || selectedUsername || "Choose a conversation";
   const headerUsername = activeConversation?.otherUsername || selectedUsername;
 
@@ -151,8 +153,37 @@ export function DmConversationPanel({
             placeholder={headerUsername ? `Message ${headerName}` : "Select a conversation first"}
             value={draftMessage}
             onChange={(e) => onDraftMessageChange(e.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                if (!isSendDisabled) {
+                  onSend();
+                }
+              }
+            }}
             className="w-full h-11 px-4 rounded-full border border-gray-200 bg-white/80 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all text-sm"
           />
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
+            onClick={() => {
+              if (!headerUsername) {
+                return;
+              }
+
+              router.push(`/pages/Credit?to=${encodeURIComponent(headerUsername)}`);
+            }}
+            disabled={!headerUsername}
+            className="w-11 h-11 bg-yellow-400 text-black rounded-full flex items-center justify-center shadow-md border border-yellow-500 disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Send credits"
+            title="Send credits"
+          >
+            <img
+              src="/assets/icons8-gift-100.png"
+              alt="Gift"
+              className="h-5 w-5 object-contain"
+            />
+          </motion.button>
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}

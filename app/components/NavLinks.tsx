@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
@@ -10,51 +11,8 @@ import {
   NavbarToggle,
 } from "flowbite-react";
 import { DM_UNREAD_CHANGED_EVENT, getDmUnreadCount } from "@/lib/dm-services";
-import { checkToken, clearToken, loggedInData } from "@/lib/user-services";
+import { checkToken, clearToken } from "@/lib/user-services";
 
-const CREDIT_KEYS = [
-  "credits",
-  "credit",
-  "creditBalance",
-  "balance",
-  "totalCredits",
-  "availableCredits",
-];
-
-
-const resolveCreditValue = (value: unknown): number | null => {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value;
-  }
-
-  if (typeof value === "string") {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      return null;
-    }
-
-    const parsed = Number(trimmed);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-
-  return null;
-};
-
-const readCreditBalance = (): string => {
-  const user = loggedInData() as Record<string, unknown> | null;
-  if (!user) {
-    return "--";
-  }
-
-  for (const key of CREDIT_KEYS) {
-    const resolvedValue = resolveCreditValue(user[key]);
-    if (resolvedValue !== null) {
-      return resolvedValue.toFixed(2);
-    }
-  }
-
-  return "--";
-};
 
 export function NavLinks() {
   const { push } = useRouter();
@@ -120,8 +78,8 @@ export function NavLinks() {
 
  {
         icon: "/assets/CreatePost.png",
-        label: "Create Post",
-        path: "/pages/SubHelpPost",
+   label: "Help Posts",
+  path: "/pages/HelpPosts",
       },
 
 
@@ -225,7 +183,7 @@ export function NavLinks() {
           >
             {visibleNavItems.map((item) => (
               <NavbarLink
-                key={item.path}
+                key={`${item.path}-${item.label}`}
                 as={Link}
                 href={item.path}
                 className="list-none flex shrink-0 items-center justify-center border-none bg-transparent p-0 no-underline shadow-none"
@@ -242,8 +200,11 @@ export function NavLinks() {
                       {unreadDmCount}
                     </span>
                   ) : null}
-                  <img
+                  <Image
                     src={item.icon}
+                    width={48}
+                    height={48}
+                    unoptimized
                     className="h-8 w-8 md:h-12 md:w-12"
                     alt={item.label}
                   />
