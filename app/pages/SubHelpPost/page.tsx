@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -74,7 +74,7 @@ const formatDateTime = (value: string) => {
   });
 };
 
-export default function SubHelpPostPage() {
+function SubHelpPostPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -744,5 +744,22 @@ export default function SubHelpPostPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function SubHelpPostPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="min-h-screen flex items-center justify-center text-white font-bold"
+          style={{ backgroundImage: "url('/assets/TBBackround.jpeg')", backgroundSize: "cover" }}
+        >
+          Loading help post tools...
+        </div>
+      }
+    >
+      <SubHelpPostPageContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import {
@@ -95,7 +95,7 @@ const loadDefaultProfiles = async (
   });
 };
 
-export default function People() {
+function PeoplePageContent() {
   const { push } = useRouter();
   const searchParams = useSearchParams();
   const querySearch = searchParams.get("q")?.trim() ?? "";
@@ -367,5 +367,22 @@ export default function People() {
               </p>
             </motion.div>
     </div>
+  );
+}
+
+export default function People() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="min-h-screen flex items-center justify-center text-white font-bold"
+          style={{ backgroundImage: "url('/assets/TBBackround.jpeg')", backgroundSize: "cover" }}
+        >
+          Loading nearby users...
+        </div>
+      }
+    >
+      <PeoplePageContent />
+    </Suspense>
   );
 }
