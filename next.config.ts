@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 import withFlowbiteReact from "flowbite-react/plugin/nextjs";
 
-const nextConfig = {
+const nextConfig: NextConfig = {
   async headers() {
     return [
       {
@@ -9,7 +9,7 @@ const nextConfig = {
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: "http://localhost:3000",
+            value: "*",
           },
           {
             key: "Access-Control-Allow-Credentials",
@@ -28,7 +28,5 @@ const nextConfig = {
     ];
   },
 };
-
-module.exports = nextConfig;
 
 export default withFlowbiteReact(nextConfig);
