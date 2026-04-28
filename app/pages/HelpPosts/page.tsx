@@ -17,6 +17,7 @@ import {
   startHelpChat,
 } from "@/lib/help-post-services";
 import { checkToken } from "@/lib/user-services";
+import { getCityFromCoordinates } from "@/lib/mapServices";
 
 const HELP_TYPE_LABELS: Record<HelpPostType, string> = {
   request: "Request Help",
@@ -32,14 +33,6 @@ const formatCategoryLabel = (category: string) =>
 
 const normalizePostType = (value: string | null): HelpPostType =>
   value === "offer" ? "offer" : "request";
-
-const formatDistance = (distanceKm: number | null) => {
-  if (distanceKm === null || !Number.isFinite(distanceKm)) {
-    return "Distance unavailable";
-  }
-
-  return `${distanceKm.toFixed(1)} km away`;
-};
 
 const formatDateTime = (value: string) => {
   const parsed = new Date(value);
@@ -61,6 +54,7 @@ export default function HelpPostsPage() {
   const searchParams = useSearchParams();
 
   const queryPostType = normalizePostType(searchParams.get("postType"));
+  const isViewingAll = searchParams.get("viewAll") === "true";
   const rawQueryCategory = searchParams.get("category")?.trim().toLowerCase() ?? "home";
   const queryCategory = rawQueryCategory || "home";
   const isKnownCategory = DEFAULT_HELP_CATEGORIES.includes(
@@ -68,7 +62,7 @@ export default function HelpPostsPage() {
   );
 
   const [postType, setPostType] = useState<HelpPostType>(queryPostType);
-  const [selectedCategory, setSelectedCategory] = useState<string>(isKnownCategory ? queryCategory : "other");
+  const [selectedCategory, setSelectedCategory] = useState<string>(isViewingAll ? "*" : isKnownCategory ? queryCategory : "other");
   const [categories, setCategories] = useState<string[]>([]);
   const [communityPosts, setCommunityPosts] = useState<HelpPost[]>([]);
   const [myPosts, setMyPosts] = useState<HelpPost[]>([]);
@@ -76,6 +70,7 @@ export default function HelpPostsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [postCities, setPostCities] = useState<Map<number, string>>(new Map());
 
   const selectableCategories = useMemo(() => {
     const base = categories.length > 0 ? categories : [...DEFAULT_HELP_CATEGORIES];
@@ -117,7 +112,7 @@ export default function HelpPostsPage() {
     const [feed, mine] = await Promise.all([
       getHelpPosts({
         postType,
-        category: selectedCategory || undefined,
+        category: selectedCategory === "*" ? undefined : selectedCategory || undefined,
       }),
       getMyHelpPosts(),
     ]);
@@ -132,6 +127,19 @@ export default function HelpPostsPage() {
       router.push("/pages/Signin");
     }
   }, [router]);
+
+  useEffect(() => {
+    const queryPostType = normalizePostType(searchParams.get("postType"));
+    const isViewingAll = searchParams.get("viewAll") === "true";
+    const rawQueryCategory = searchParams.get("category")?.trim().toLowerCase() ?? "home";
+    const queryCategory = rawQueryCategory || "home";
+    const isKnownCategory = DEFAULT_HELP_CATEGORIES.includes(
+      queryCategory as (typeof DEFAULT_HELP_CATEGORIES)[number],
+    );
+
+    setPostType(queryPostType);
+    setSelectedCategory(isViewingAll ? "*" : isKnownCategory ? queryCategory : "other");
+  }, [searchParams]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -162,6 +170,34 @@ export default function HelpPostsPage() {
       window.clearTimeout(timer);
     };
   }, [loadPosts]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchCities = async () => {
+      const allPosts = [...communityPosts, ...myPosts];
+      const newCities = new Map<number, string>();
+
+      for (const post of allPosts) {
+        if (post.latitude !== null && post.longitude !== null) {
+          const city = await getCityFromCoordinates(post.latitude, post.longitude);
+          if (!isCancelled) {
+            newCities.set(post.id, city);
+          }
+        }
+      }
+
+      if (!isCancelled) {
+        setPostCities(newCities);
+      }
+    };
+
+    void fetchCities();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [communityPosts, myPosts]);
 
   const handleDelete = async (postId: number) => {
     const success = await deleteHelpPost(postId);
@@ -256,7 +292,7 @@ export default function HelpPostsPage() {
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-gray-600 mb-3">Category</p>
             <div className="grid grid-cols-2 gap-2">
-              {selectableCategories.map((category) => (
+              {selectedCategory !== "*" && selectableCategories.map((category) => (
                 <button
                   key={category}
                   type="button"
@@ -290,10 +326,21 @@ export default function HelpPostsPage() {
         <div className="mt-4 flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={() => router.push(`/pages/SubHelpPost?postType=${postType}&category=${selectedCategory}`)}
+            onClick={() => router.push(`/pages/SubHelpPost?postType=${postType}&category=${selectedCategory === "*" ? "home" : selectedCategory}`)}
             className="rounded-xl bg-[#28a8af] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#218e94]"
           >
             Create New Post
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/pages/HelpPosts?viewAll=true")}
+            className={`rounded-xl px-5 py-3 text-sm font-bold transition ${
+              selectedCategory === "*"
+                ? "bg-gray-600 text-white border-2 border-white outline outline-2 outline-offset-2 outline-gray-400"
+                : "bg-gray-600 text-white hover:bg-gray-700"
+            }`}
+          >
+            View All Posts
           </button>
         </div>
       </div>
@@ -340,7 +387,7 @@ export default function HelpPostsPage() {
                     <div>
                     <h4 className="font-bold text-gray-900">{post.title}</h4>
                     <p className="text-xs text-gray-600 mt-1">
-                      {formatCategoryLabel(post.category)} | {post.creatorName || post.creatorUsername} | {formatDistance(post.distanceKm)}
+                      {formatCategoryLabel(post.category)} | {post.creatorName || post.creatorUsername} | {postCities.get(post.id) || "Loading location..."}
                     </p>
                     </div>
                   </div>

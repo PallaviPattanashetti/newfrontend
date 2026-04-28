@@ -23,3 +23,36 @@ export const fetchMapLocation = async (queryText: string = ""): Promise<MapLocat
         return FALLBACK_LOCATIONS; 
     }
 };
+
+const cityCache = new Map<string, string>();
+
+export const getCityFromCoordinates = async (latitude: number | null, longitude: number | null): Promise<string> => {
+    if (latitude === null || longitude === null || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        return "Unknown Location";
+    }
+
+    const cacheKey = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+    
+    if (cityCache.has(cacheKey)) {
+        return cityCache.get(cacheKey) ?? "Unknown Location";
+    }
+
+    try {
+        const response = await fetch(
+            `/api/geocode/reverse?lat=${latitude}&lon=${longitude}`,
+            { cache: "no-store" }
+        );
+
+        if (!response.ok) {
+            return "Unknown Location";
+        }
+
+        const data = (await response.json()) as { city: string };
+        const city = data.city || "Unknown Location";
+        cityCache.set(cacheKey, city);
+        return city;
+    } catch (error) {
+        console.error("Reverse geocoding error:", error);
+        return "Unknown Location";
+    }
+};

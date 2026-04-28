@@ -10,6 +10,7 @@ import {
   getDiscoverableProfiles,
 } from "@/lib/user-services";
 import { useRouter, useSearchParams } from "next/navigation";
+import { getCityFromCoordinates } from "@/lib/mapServices";
 
 const DEFAULT_IMAGE = "/assets/UserAccounts.jpeg";
 
@@ -111,6 +112,7 @@ export default function People() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const [profileCities, setProfileCities] = useState<Map<string, string>>(new Map());
 
   const hasQuery = useMemo(() => searchTerm.trim().length > 0, [searchTerm]);
 
@@ -204,6 +206,33 @@ export default function People() {
 
     return () => window.clearTimeout(debounceId);
   }, [searchTerm, isLoading, locationCoords, currentUserKeys]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchCities = async () => {
+      const newCities = new Map<string, string>();
+
+      for (const profile of visibleProfiles) {
+        if (profile.latitude !== undefined && profile.longitude !== undefined && profile.latitude !== null && profile.longitude !== null) {
+          const city = await getCityFromCoordinates(profile.latitude, profile.longitude);
+          if (!isCancelled) {
+            newCities.set(profile.id, city);
+          }
+        }
+      }
+
+      if (!isCancelled) {
+        setProfileCities(newCities);
+      }
+    };
+
+    void fetchCities();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [visibleProfiles]);
 
   const refreshRandomUsers = async () => {
     setIsRefreshing(true);
@@ -302,6 +331,12 @@ export default function People() {
                 <h3 className="text-gray-900 font-bold text-base text-center leading-tight">
                   {person.profileName}
                 </h3>
+                <p className="text-gray-500 text-xs text-center">@{person.username}</p>
+                {profileCities.get(person.id) && (
+                  <p className="text-gray-600 text-xs text-center">
+                    📍 {profileCities.get(person.id)}
+                  </p>
+                )}
               </div>
 
               <div className="flex-1 px-4 md:px-12 py-6 md:py-0">
