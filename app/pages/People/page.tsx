@@ -346,7 +346,9 @@ export default function People() {
               </div>
 
               <div className="shrink-0 w-full md:w-auto">
-                <button className="w-full md:px-10 py-3.5 rounded-full bg-[#28a8af] text-white font-bold text-sm shadow-lg shadow-[#28a8af]/30 hover:bg-[#218e94] transition-colors">
+                <button 
+                  onClick={() => push(`/pages/Message?contact=${encodeURIComponent(person.username)}`)}
+                  className="w-full md:px-10 py-3.5 rounded-full bg-[#28a8af] text-white font-bold text-sm shadow-lg shadow-[#28a8af]/30 hover:bg-[#218e94] transition-colors">
                   Message
                 </button>
               </div>
