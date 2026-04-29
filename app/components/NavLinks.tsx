@@ -184,7 +184,9 @@ export function NavLinks() {
                     width={48}
                     height={48}
                     unoptimized
-                    className="h-7 w-7 object-contain md:h-9 md:w-9 lg:h-12 lg:w-12"
+                    className={`h-7 w-7 object-contain md:h-9 md:w-9 lg:h-12 lg:w-12 ${
+                      item.label === "Nearby Users" ? "translate-x-0.5" : ""
+                    }`}
                     alt={item.label}
                   />
                   <span className="mt-1 block leading-tight whitespace-nowrap text-[9px] font-bold text-black md:text-xs lg:text-sm">
