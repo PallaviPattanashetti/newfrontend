@@ -5,14 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { useCredits } from "@/context/creditcontext";
-import {
-  Navbar,
-  NavbarLink,
-  NavbarToggle,
-} from "flowbite-react";
 import { DM_UNREAD_CHANGED_EVENT, getDmUnreadCount } from "@/lib/dm-services";
 import { checkToken, clearToken } from "@/lib/user-services";
-
 
 export function NavLinks() {
   const { push } = useRouter();
@@ -39,6 +33,7 @@ export function NavLinks() {
     window.addEventListener("storage", refreshAuthState);
     window.addEventListener("auth-changed", refreshAuthState);
     window.addEventListener(DM_UNREAD_CHANGED_EVENT, refreshAuthState);
+
     return () => {
       window.removeEventListener("storage", refreshAuthState);
       window.removeEventListener("auth-changed", refreshAuthState);
@@ -74,15 +69,11 @@ export function NavLinks() {
         label: "Categories",
         path: "/pages/HelpCategory",
       },
-
-
- {
+      {
         icon: "/assets/CreatePost.png",
-   label: "Help Posts",
-  path: "/pages/HelpPosts",
+        label: "Help Posts",
+        path: "/pages/HelpPosts",
       },
-
-
       {
         icon: "/assets/icons8-messages-100.png",
         label: "Messages",
@@ -103,8 +94,7 @@ export function NavLinks() {
   );
 
   const visibleNavItems = useMemo(
-    () =>
-      navItems.filter((item) => (isLoggedIn ? item.label !== "Login" : true)),
+    () => navItems.filter((item) => (isLoggedIn ? item.label !== "Login" : true)),
     [isLoggedIn, navItems],
   );
 
@@ -126,74 +116,63 @@ export function NavLinks() {
   }
 
   return (
-    <div className="sticky top-0 z-50 w-full bg-linear-to-r from-[#d8f1f7]/95 via-[#edf9fb]/95 to-white/95 backdrop-blur-sm">
-     { isLoggedIn  ? <Navbar
-        fluid
-        rounded={false}
-        className="relative border-none bg-transparent! px-4 py-4 shadow-none dark:bg-transparent! md:px-6 [&_ul]:m-0 [&_ul]:list-none [&_ul]:p-0 [&_li]:list-none"
-      >
-        <div className="flex w-full items-center justify-between md:hidden">
-          <div className="flex min-w-28 flex-col rounded-full border border-black/10 bg-white/45 px-4 py-2 text-black shadow-sm backdrop-blur-sm">
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/65">
-              Credits
-            </span>
-            <span className="text-sm font-black leading-none">{displayCredits}</span>
-          </div>
+    <div className="sticky top-0 z-50 w-full overflow-x-clip bg-linear-to-r from-[#d8f1f7]/95 via-[#edf9fb]/95 to-white/95 backdrop-blur-sm">
+      {isLoggedIn ? (
+        <div className="relative px-3 py-3 lg:px-6">
+          <div className="flex w-full items-center justify-between lg:hidden">
+            <div className="flex min-w-28 flex-col rounded-full border border-black/10 bg-white/45 px-4 py-2 text-black shadow-sm backdrop-blur-sm">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/65">
+                Credits
+              </span>
+              <span className="text-sm font-black leading-none">{displayCredits}</span>
+            </div>
 
-          <div className="flex items-center gap-2">
-            {isLoggedIn ? (
+            <div className="flex items-center gap-2">
               <button
                 onClick={handleLogout}
                 className="inline-flex h-9 items-center justify-center rounded-full bg-sky-500 px-4 text-xs font-semibold text-white shadow-md transition hover:bg-sky-600"
               >
                 Logout
               </button>
-            ) : null}
-
-            <NavbarToggle />
+            </div>
           </div>
-        </div>
 
-        <div className="absolute left-6 top-1/2 hidden -translate-y-1/2 md:flex">
-          <div className="flex min-w-32 flex-col rounded-full border border-black/10 bg-white/45 px-4 py-2 text-black shadow-sm backdrop-blur-sm">
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/65">
-              Credits
-            </span>
-            <span className="text-sm font-black leading-none">{displayCredits}</span>
+          <div className="absolute left-6 top-1/2 hidden -translate-y-1/2 lg:flex">
+            <div className="flex min-w-32 flex-col rounded-full border border-black/10 bg-white/45 px-4 py-2 text-black shadow-sm backdrop-blur-sm">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/65">
+                Credits
+              </span>
+              <span className="text-sm font-black leading-none">{displayCredits}</span>
+            </div>
           </div>
-        </div>
 
-        <div className="absolute right-6 top-1/2 hidden -translate-y-1/2 items-center gap-2 md:flex">
-          {isLoggedIn ? (
+          <div className="absolute right-6 top-1/2 hidden -translate-y-1/2 items-center gap-2 lg:flex">
             <button
               onClick={handleLogout}
               className="inline-flex h-10 items-center justify-center rounded-full bg-sky-500 px-5 text-sm font-semibold text-white shadow-md transition hover:bg-sky-600"
             >
               Logout
             </button>
-          ) : null}
-        </div>
+          </div>
 
-        <div className="md:order-1 md:w-full md:justify-center">
           <motion.div
             variants={listVariants}
             initial="hidden"
             animate="show"
-            className="flex w-full flex-row items-center justify-center gap-2 overflow-x-auto py-4 no-scrollbar md:gap-4 md:overflow-x-visible md:py-0"
+            className="flex w-full flex-row items-center justify-start gap-1 overflow-x-auto py-3 no-scrollbar sm:justify-center lg:gap-4 lg:overflow-x-visible lg:py-0"
           >
             {visibleNavItems.map((item) => (
-              <NavbarLink
+              <Link
                 key={`${item.path}-${item.label}`}
-                as={Link}
                 href={item.path}
-                className="list-none flex shrink-0 items-center justify-center border-none bg-transparent p-0 no-underline shadow-none"
+                className="flex shrink-0 items-center justify-center rounded-lg border-none bg-transparent p-0 no-underline shadow-none"
               >
                 <motion.div
                   variants={itemVariants}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className="relative flex flex-col items-center justify-center p-2 origin-center"
+                  className="relative origin-center p-2"
                 >
                   {item.label === "Messages" && unreadDmCount > 0 ? (
                     <span className="absolute right-1 top-0 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
@@ -205,18 +184,20 @@ export function NavLinks() {
                     width={48}
                     height={48}
                     unoptimized
-                    className="h-8 w-8 md:h-12 md:w-12"
+                    className="h-7 w-7 md:h-9 md:w-9 lg:h-12 lg:w-12"
                     alt={item.label}
                   />
-                  <span className="text-[10px] md:text-sm mt-1 font-bold text-black whitespace-nowrap">
+                  <span className="mt-1 block whitespace-nowrap text-[9px] font-bold text-black md:text-xs lg:text-sm">
                     {item.label}
                   </span>
                 </motion.div>
-              </NavbarLink>
+              </Link>
             ))}
           </motion.div>
         </div>
-      </Navbar> : ""}
+      ) : (
+        ""
+      )}
     </div>
   );
 }
