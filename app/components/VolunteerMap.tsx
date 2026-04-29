@@ -1,35 +1,32 @@
-
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { motion} from "framer-motion";
+import { motion } from "framer-motion";
 import mapboxgl from "mapbox-gl";
 import { useMapLocation } from "@/context/context";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-
 import dynamic from "next/dynamic";
 
-const SearchBox = dynamic(() => import("@mapbox/search-js-react").then((mod) => mod.SearchBox ), { ssr: false });
+const SearchBox = dynamic(
+  () => import("@mapbox/search-js-react").then((mod) => mod.SearchBox),
+  { ssr: false },
+);
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
 mapboxgl.accessToken = MAPBOX_TOKEN;
-
-  
 
 export default function VolunteerMap() {
   const { maplocation } = useMapLocation();
   const [showDetails, setShowDetails] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  
- 
+
   const [accessToken, setAccessToken] = useState<string | null>(MAPBOX_TOKEN);
-  
+
   const [mapLoaded, setMapLoaded] = useState(false);
-  
+
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const activeMarker = useRef<mapboxgl.Marker | null>(null);
-
 
   useEffect(() => {
     setIsMounted(true);
@@ -47,7 +44,7 @@ export default function VolunteerMap() {
       });
 
       map.current.on("load", () => {
-        setMapLoaded(true); 
+        setMapLoaded(true);
       });
 
       map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
@@ -100,24 +97,21 @@ export default function VolunteerMap() {
       </motion.div>
 
       <div className="w-full max-w-lg flex flex-col items-center mb-4">
-       
         <SearchBox
           accessToken={MAPBOX_TOKEN}
           map={map.current as any}
-          mapboxgl={mapboxgl}      
+          mapboxgl={mapboxgl}
           options={{
             language: "en",
             country: "US",
           }}
-          marker={true} 
+          marker={true}
         />
-
       </div>
 
       <div className="w-full max-w-5xl h-96 border-8 border-white rounded-[2.5rem] overflow-hidden shadow-2xl bg-white relative z-10">
         <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
       </div>
-
     </div>
   );
 }

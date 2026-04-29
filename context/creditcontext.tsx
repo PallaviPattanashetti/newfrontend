@@ -1,9 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import {GetUserCredits } from "@/lib/transactionservices";
+import { GetUserCredits } from "@/lib/transactionservices";
 import { getStoredChatUsername } from "@/lib/user-services";
-
 
 type CreditContextType = {
   credits: number;

@@ -1,37 +1,38 @@
 "use client";
 
-import { Inria_Serif } from 'next/font/google';
+import { Inria_Serif } from "next/font/google";
 import { useRouter } from "next/navigation";
 
 import { motion } from "framer-motion";
 
 const inriaSerif = Inria_Serif({
   subsets: ["latin"],
-  weight: "400"
+  weight: "400",
 });
 
 const Page = () => {
   const router = useRouter();
 
-  const sloganText = "Exchange time for time: one hour given, one hour gained purely on credits, no cash!";
+  const sloganText =
+    "Exchange time for time: one hour given, one hour gained purely on credits, no cash!";
   const words = sloganText.split(" ");
 
   const containerVars = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.08, delayChildren: 0.3 }
-    }
+      transition: { staggerChildren: 0.08, delayChildren: 0.3 },
+    },
   };
 
   const wordVars = {
     hidden: { opacity: 0, y: 10, filter: "blur(4px)" },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
+    visible: {
+      opacity: 1,
+      y: 0,
       filter: "blur(0px)",
-      transition: { duration: 0.5 } 
-    }
+      transition: { duration: 0.5 },
+    },
   };
 
   return (
@@ -39,7 +40,6 @@ const Page = () => {
       className="min-h-screen bg-cover bg-center flex flex-col items-center p-4 md:p-8"
       style={{ backgroundImage: "url('/assets/TBBackround.jpeg')" }}
     >
-      
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -59,14 +59,17 @@ const Page = () => {
       >
         <h2 className="text-[28px] md:text-[48px] leading-tight text-black flex flex-wrap justify-center">
           {words.map((word, i) => (
-            <motion.span key={i} variants={wordVars} className="inline-block mr-2 md:mr-3">
+            <motion.span
+              key={i}
+              variants={wordVars}
+              className="inline-block mr-2 md:mr-3"
+            >
               {word}
             </motion.span>
           ))}
         </h2>
       </motion.div>
 
-    
       <motion.button
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -78,7 +81,6 @@ const Page = () => {
       >
         Get Started
       </motion.button>
-
 
       <motion.p
         initial={{ opacity: 0 }}
