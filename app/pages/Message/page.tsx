@@ -16,8 +16,14 @@ import {
   type DmMessage,
   type LiveDmPayload,
 } from "@/lib/dm-services";
-import { getStoredChatUsername } from "@/lib/user-services";
+import { getDiscoverableProfiles, getStoredChatUsername } from "@/lib/user-services";
 import { registerUser, sendPrivateMessage, startConnection, stopConnection } from "@/lib/signalservices";
+
+type RecipientSuggestion = {
+  username: string;
+  displayName: string;
+  profilePictureUrl: string | null;
+};
 
 const isExpectedSignalRStartupAbort = (error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
@@ -88,6 +94,8 @@ function DmPageContent() {
   const [selectedUsername, setSelectedUsername] = useState(contactQuery);
   const [draftMessage, setDraftMessage] = useState("");
   const [inboxItems, setInboxItems] = useState<DmInboxItem[]>([]);
+  const [recipientSuggestions, setRecipientSuggestions] = useState<RecipientSuggestion[]>([]);
+  const [isSearchingRecipients, setIsSearchingRecipients] = useState(false);
   const [messages, setMessages] = useState<DmMessage[]>([]);
   const [isInboxLoading, setIsInboxLoading] = useState(true);
   const [isMessagesLoading, setIsMessagesLoading] = useState(false);
@@ -114,6 +122,90 @@ function DmPageContent() {
     [inboxItems, selectedUsername],
   );
 
+  useEffect(() => {
+    const query = draftRecipient.trim();
+
+    if (!query) {
+      setRecipientSuggestions([]);
+      setIsSearchingRecipients(false);
+      return;
+    }
+
+    let isCancelled = false;
+    setIsSearchingRecipients(true);
+
+    const timeoutId = window.setTimeout(async () => {
+      const normalizedQuery = query.toLowerCase();
+
+      const inboxMatches: RecipientSuggestion[] = inboxItems
+        .filter((item) => {
+          const byUsername = item.otherUsername.toLowerCase().includes(normalizedQuery);
+          const byDisplayName = item.otherDisplayName.toLowerCase().includes(normalizedQuery);
+          return byUsername || byDisplayName;
+        })
+        .map((item) => ({
+          username: item.otherUsername,
+          displayName: item.otherDisplayName || item.otherUsername,
+          profilePictureUrl: item.otherProfilePictureUrl,
+        }));
+
+      try {
+        const profiles = await getDiscoverableProfiles(query, {
+          skip: 0,
+          take: 8,
+          random: false,
+          onlyComplete: false,
+        });
+
+        if (isCancelled) {
+          return;
+        }
+
+        const merged = new Map<string, RecipientSuggestion>();
+
+        for (const match of inboxMatches) {
+          merged.set(match.username.toLowerCase(), match);
+        }
+
+        for (const profile of profiles) {
+          const username = profile.username.trim();
+          if (!username) {
+            continue;
+          }
+
+          const key = username.toLowerCase();
+          if (!merged.has(key)) {
+            merged.set(key, {
+              username,
+              displayName: profile.profileName || username,
+              profilePictureUrl: profile.profilePictureUrl || null,
+            });
+          }
+        }
+
+        const nextSuggestions = [...merged.values()]
+          .filter((item) => item.username.toLowerCase() !== currentUsername.toLowerCase())
+          .slice(0, 8);
+
+        setRecipientSuggestions(nextSuggestions);
+      } catch (error) {
+        if (!isCancelled) {
+          console.error("Recipient search failed", error);
+          setRecipientSuggestions(inboxMatches.slice(0, 8));
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsSearchingRecipients(false);
+        }
+      }
+    }, 220);
+
+    return () => {
+      isCancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [currentUsername, draftRecipient, inboxItems]);
+
   const refreshInbox = useCallback(async () => {
     const inbox = sortInboxItems(await getDmInbox());
     setInboxItems(inbox);
@@ -139,6 +231,10 @@ function DmPageContent() {
   const openConversation = async (otherUsername: string) => {
     setSelectedUsername(otherUsername);
     setDraftRecipient(otherUsername);
+  };
+
+  const handleSelectRecipientSuggestion = (username: string) => {
+    void openConversation(username);
   };
 
   useEffect(() => {
@@ -383,8 +479,11 @@ function DmPageContent() {
           draftRecipient={draftRecipient}
           inboxItems={inboxItems}
           isLoading={isInboxLoading}
+          isSearchingRecipients={isSearchingRecipients}
+          recipientSuggestions={recipientSuggestions}
           selectedUsername={selectedUsername}
           onDraftRecipientChange={setDraftRecipient}
+          onSelectRecipientSuggestion={handleSelectRecipientSuggestion}
           onSelect={openConversation}
         />
 

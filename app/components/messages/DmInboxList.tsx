@@ -1,13 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import type { DmInboxItem } from "@/lib/dm-services";
+
+type RecipientSuggestion = {
+  username: string;
+  displayName: string;
+  profilePictureUrl: string | null;
+};
 
 type DmInboxListProps = {
   draftRecipient: string;
   inboxItems: DmInboxItem[];
   isLoading: boolean;
+  isSearchingRecipients: boolean;
+  recipientSuggestions: RecipientSuggestion[];
   selectedUsername: string;
   onDraftRecipientChange: (value: string) => void;
+  onSelectRecipientSuggestion: (username: string) => void;
   onSelect: (username: string) => void;
 };
 
@@ -39,23 +49,79 @@ export function DmInboxList({
   draftRecipient,
   inboxItems,
   isLoading,
+  isSearchingRecipients,
+  recipientSuggestions,
   selectedUsername,
   onDraftRecipientChange,
+  onSelectRecipientSuggestion,
   onSelect,
 }: DmInboxListProps) {
+  const [isRecipientFocused, setIsRecipientFocused] = useState(false);
+  const hasRecipientQuery = draftRecipient.trim().length > 0;
+  const showRecipientSuggestions =
+    isRecipientFocused &&
+    hasRecipientQuery &&
+    (isSearchingRecipients || recipientSuggestions.length > 0);
+
   return (
     <div className="w-full md:w-96 md:h-full h-64 shrink-0 border-b md:border-b-0 md:border-r border-gray-100 bg-white/60 p-4 overflow-y-auto min-h-0">
       <h2 className="text-gray-500 font-semibold text-xs uppercase tracking-wider mb-4 px-2">
         Chats
       </h2>
 
-      <input
-        type="text"
-        placeholder="Send to username..."
-        value={draftRecipient}
-        onChange={(e) => onDraftRecipientChange(e.target.value)}
-        className="mb-4 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-blue-300"
-      />
+      <div className="relative mb-4">
+        <input
+          type="text"
+          placeholder="Send to username..."
+          value={draftRecipient}
+          onFocus={() => setIsRecipientFocused(true)}
+          onBlur={() => {
+            window.setTimeout(() => {
+              setIsRecipientFocused(false);
+            }, 120);
+          }}
+          onChange={(e) => onDraftRecipientChange(e.target.value)}
+          className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-blue-300"
+        />
+
+        {showRecipientSuggestions ? (
+          <div className="absolute left-0 right-0 top-full z-20 mt-2 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg">
+            {isSearchingRecipients ? (
+              <div className="px-3 py-2 text-xs text-gray-600">Searching users...</div>
+            ) : null}
+
+            {!isSearchingRecipients
+              ? recipientSuggestions.map((suggestion) => (
+                  <button
+                    key={suggestion.username.toLowerCase()}
+                    type="button"
+                    onClick={() => onSelectRecipientSuggestion(suggestion.username)}
+                    className="flex w-full items-center gap-2 border-b border-gray-100 px-3 py-2 text-left transition hover:bg-blue-50 last:border-b-0"
+                  >
+                    {suggestion.profilePictureUrl ? (
+                      <img
+                        src={suggestion.profilePictureUrl}
+                        alt={suggestion.displayName || suggestion.username}
+                        className="h-8 w-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#5F4F4F]/15 text-[11px] font-bold text-gray-700">
+                        {getInitials(suggestion.displayName, suggestion.username)}
+                      </div>
+                    )}
+
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-gray-900">
+                        {suggestion.displayName || suggestion.username}
+                      </p>
+                      <p className="truncate text-xs text-gray-500">@{suggestion.username}</p>
+                    </div>
+                  </button>
+                ))
+              : null}
+          </div>
+        ) : null}
+      </div>
 
       <div className="flex flex-col gap-2">
         {isLoading ? (
