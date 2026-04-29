@@ -32,7 +32,9 @@ const RegisterPage = () => {
         alert("Account Created! Please Sign In.");
         push("/pages/Signin");
       } else {
-        alert("Registration failed. Check API availability or whether account already exists.");
+        alert(
+          "Registration failed. Check API availability or whether account already exists.",
+        );
       }
     } catch {
       alert(`Could not reach API at ${getApiBaseUrl()}.`);
@@ -63,7 +65,10 @@ const RegisterPage = () => {
         </h1>
       </motion.div>
 
-      <form onSubmit={handleSubmit} className="w-full max-w-lg flex flex-col items-center">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-lg flex flex-col items-center"
+      >
         <div className={inputContainer}>
           <input
             type="text"
@@ -82,21 +87,25 @@ const RegisterPage = () => {
             placeholder="Password"
             required
             className={inputBase}
-            onChange={(e) => setRegister({ ...register, password: e.target.value })}
+            onChange={(e) =>
+              setRegister({ ...register, password: e.target.value })
+            }
           />
         </div>
 
-        
-
- <button
-  type="submit"
-  style={{ backgroundColor: "#1d4ed8", color: "white" }}
-  className="w-full max-w-[505px] h-[60px] font-bold text-lg rounded-[15px] shadow-md cursor-pointer border-2"
-  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#1e40af")}
-  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1d4ed8")}
->
-  Create Account
-</button>
+        <button
+          type="submit"
+          style={{ backgroundColor: "#1d4ed8", color: "white" }}
+          className="w-full max-w-[505px] h-[60px] font-bold text-lg rounded-[15px] shadow-md cursor-pointer border-2"
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#1e40af")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "#1d4ed8")
+          }
+        >
+          Create Account
+        </button>
 
         <p className="mt-4 text-black">
           Already have an account?
@@ -109,7 +118,7 @@ const RegisterPage = () => {
         </p>
       </form>
 
-        <motion.div
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
@@ -123,7 +132,3 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
-
-
-
-
