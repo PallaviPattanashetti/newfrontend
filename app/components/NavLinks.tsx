@@ -172,7 +172,7 @@ export function NavLinks() {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className="relative origin-center p-2"
+                  className="relative origin-center p-2 flex flex-col items-center text-center"
                 >
                   {item.label === "Messages" && unreadDmCount > 0 ? (
                     <span className="absolute right-1 top-0 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
@@ -184,10 +184,10 @@ export function NavLinks() {
                     width={48}
                     height={48}
                     unoptimized
-                    className="h-7 w-7 md:h-9 md:w-9 lg:h-12 lg:w-12"
+                    className="h-7 w-7 object-contain md:h-9 md:w-9 lg:h-12 lg:w-12"
                     alt={item.label}
                   />
-                  <span className="mt-1 block whitespace-nowrap text-[9px] font-bold text-black md:text-xs lg:text-sm">
+                  <span className="mt-1 block leading-tight whitespace-nowrap text-[9px] font-bold text-black md:text-xs lg:text-sm">
                     {item.label}
                   </span>
                 </motion.div>
