@@ -44,7 +44,7 @@ export function DmInboxList({
   onSelect,
 }: DmInboxListProps) {
   return (
-    <div className="w-full md:w-96 border-b md:border-b-0 md:border-r border-gray-100 bg-white/60 p-4 overflow-y-auto">
+    <div className="w-full md:w-96 md:h-full h-64 shrink-0 border-b md:border-b-0 md:border-r border-gray-100 bg-white/60 p-4 overflow-y-auto min-h-0">
       <h2 className="text-gray-500 font-semibold text-xs uppercase tracking-wider mb-4 px-2">
         Chats
       </h2>

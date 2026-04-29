@@ -1,5 +1,5 @@
 import { HubConnectionBuilder, HubConnection, HubConnectionState, LogLevel } from "@microsoft/signalr";
-import { getApiBaseUrl } from "@/lib/user-services";
+import { getApiBaseUrl, getToken } from "@/lib/user-services";
 
 import type { LiveDmPayload } from "@/lib/dm-services";
 
@@ -10,6 +10,60 @@ let activeConsumers = 0;
 let stopTimeout: ReturnType<typeof setTimeout> | null = null;
 let registeredUsername = "";
 
+const normalizeLivePayloadFromObject = (value: Record<string, unknown>) => {
+  const from = value.from ?? value.From;
+  const to = value.to ?? value.To;
+  const message = value.message ?? value.Message;
+  const sentAtUtc = value.sentAtUtc ?? value.SentAtUtc ?? new Date().toISOString();
+  const readAtUtc = value.readAtUtc ?? value.ReadAtUtc ?? null;
+
+  if (typeof from !== "string" || typeof to !== "string" || typeof message !== "string") {
+    return null;
+  }
+
+  return {
+    from,
+    to,
+    message,
+    sentAtUtc: typeof sentAtUtc === "string" && sentAtUtc.trim() ? sentAtUtc : new Date().toISOString(),
+    readAtUtc: typeof readAtUtc === "string" ? readAtUtc : null,
+  } as LiveDmPayload;
+};
+
+const normalizeReceivePrivateMessageArgs = (args: unknown[]): LiveDmPayload | null => {
+  if (args.length === 0) {
+    return null;
+  }
+
+  const firstArg = args[0];
+
+  if (firstArg && typeof firstArg === "object") {
+    return normalizeLivePayloadFromObject(firstArg as Record<string, unknown>);
+  }
+
+  if (typeof firstArg === "string") {
+    const from = firstArg;
+    const to = args[1];
+    const message = args[2];
+    const sentAtUtc = args[3];
+    const readAtUtc = args[4];
+
+    if (typeof to !== "string" || typeof message !== "string") {
+      return null;
+    }
+
+    return {
+      from,
+      to,
+      message,
+      sentAtUtc: typeof sentAtUtc === "string" && sentAtUtc.trim() ? sentAtUtc : new Date().toISOString(),
+      readAtUtc: typeof readAtUtc === "string" ? readAtUtc : null,
+    };
+  }
+
+  return null;
+};
+
 const getHubUrlCandidates = () => {
   const explicitHubUrl = process.env.NEXT_PUBLIC_SIGNALR_HUB_URL?.trim() ?? "";
   const candidates = [explicitHubUrl, `${getApiBaseUrl()}/chatHub`];
@@ -19,12 +73,21 @@ const getHubUrlCandidates = () => {
 
 const buildConnection = (hubUrl: string, onReceivePrivate: (payload: LiveDmPayload) => void) => {
   const hubConnection = new HubConnectionBuilder()
-    .withUrl(hubUrl)
+    .withUrl(hubUrl, {
+      accessTokenFactory: () => getToken(),
+    })
     .configureLogging(LogLevel.Information)
     .withAutomaticReconnect()
     .build();
 
-  hubConnection.on("ReceivePrivateMessage", (payload: LiveDmPayload) => onReceivePrivate(payload));
+  hubConnection.on("ReceivePrivateMessage", (...args: unknown[]) => {
+    const payload = normalizeReceivePrivateMessageArgs(args);
+    if (!payload) {
+      return;
+    }
+
+    onReceivePrivate(payload);
+  });
 
   hubConnection.onreconnected(async () => {
     if (!registeredUsername) {
@@ -138,7 +201,14 @@ export const startConnection = async (onReceivePrivate: (payload: LiveDmPayload)
 
   if (connection) {
     connection.off("ReceivePrivateMessage");
-    connection.on("ReceivePrivateMessage", (payload: LiveDmPayload) => onReceivePrivate(payload));
+    connection.on("ReceivePrivateMessage", (...args: unknown[]) => {
+      const payload = normalizeReceivePrivateMessageArgs(args);
+      if (!payload) {
+        return;
+      }
+
+      onReceivePrivate(payload);
+    });
 
     try {
       await ensureConnectionStarted();

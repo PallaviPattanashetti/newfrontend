@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import type { DmInboxItem, DmMessage } from "@/lib/dm-services";
@@ -56,11 +57,20 @@ export function DmConversationPanel({
   selectedUsername,
 }: DmConversationPanelProps) {
   const router = useRouter();
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const headerName = activeConversation?.otherDisplayName || selectedUsername || "Choose a conversation";
   const headerUsername = activeConversation?.otherUsername || selectedUsername;
 
+  useEffect(() => {
+    if (!scrollContainerRef.current) {
+      return;
+    }
+
+    scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+  }, [messages, selectedUsername]);
+
   return (
-    <div className="flex-1 flex flex-col bg-white/30">
+    <div className="flex-1 flex flex-col bg-white/30 min-h-0">
       <div className="p-4 border-b border-gray-100/20 flex items-center gap-3 bg-white/40">
         {activeConversation?.otherProfilePictureUrl ? (
           <img
@@ -82,7 +92,7 @@ export function DmConversationPanel({
         </div>
       </div>
 
-      <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-4">
+      <div ref={scrollContainerRef} className="flex-1 min-h-0 p-6 overflow-y-auto flex flex-col gap-4">
         <AnimatePresence>
           <motion.div
             key={headerUsername || "empty-conversation"}

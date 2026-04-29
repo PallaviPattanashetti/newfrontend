@@ -17,7 +17,7 @@ import {
   type LiveDmPayload,
 } from "@/lib/dm-services";
 import { getStoredChatUsername } from "@/lib/user-services";
-import { registerUser, startConnection, stopConnection } from "@/lib/signalservices";
+import { registerUser, sendPrivateMessage, startConnection, stopConnection } from "@/lib/signalservices";
 
 const isExpectedSignalRStartupAbort = (error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
@@ -168,6 +168,11 @@ function DmPageContent() {
         await startConnection(async (payload) => {
           const username = currentUsernameRef.current;
           if (!username) {
+            return;
+          }
+
+          // Sender already sees optimistic UI updates, so skip outbound echoes.
+          if (payload.from.toLowerCase() === username.toLowerCase()) {
             return;
           }
 
@@ -333,10 +338,16 @@ function DmPageContent() {
       return sortInboxItems([nextItem, ...filtered]);
     });
 
-    const sent = await postDmMessage(recipient, trimmedMessage);
-    if (!sent) {
-      setConnectionError("Unable to send message.");
-      return;
+    try {
+      await sendPrivateMessage(recipient, currentUsername, trimmedMessage);
+    } catch (error) {
+      console.error("SignalR live send failed", error);
+
+      const sent = await postDmMessage(recipient, trimmedMessage);
+      if (!sent) {
+        setConnectionError("Unable to send message.");
+        return;
+      }
     }
 
     await refreshInbox();
@@ -366,7 +377,7 @@ function DmPageContent() {
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-[1280px] min-h-152 border border-gray-200 bg-[#28a8af]/40 backdrop-blur-md flex flex-col md:flex-row shadow-xl rounded-2xl overflow-hidden"
+        className="w-full max-w-[1280px] h-[72vh] min-h-[540px] max-h-[840px] border border-gray-200 bg-[#28a8af]/40 backdrop-blur-md flex flex-col md:flex-row shadow-xl rounded-2xl overflow-hidden"
       >
         <DmInboxList
           draftRecipient={draftRecipient}

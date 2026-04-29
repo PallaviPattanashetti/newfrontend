@@ -26,6 +26,8 @@ const [transferAmount, setTransferAmount] = useState(0.00);
   const [searchInput, setSearchInput] = useState("");
 const [searchResult, setSearchResult] = useState<boolean>(false);
 const [hasSearched, setHasSearched] = useState(false);
+const normalizedSearchInput = searchInput.trim();
+const isSelectedUser = Boolean(toUser) && toUser === normalizedSearchInput;
 
 
 
@@ -180,10 +182,15 @@ console.log("TRANSFER RESPONSE:", res);
           <span className="font-bold">User Found!</span>
 
           <button
-            onClick={() => setToUser(searchInput)}
-            className="bg-[#5F4F4F] text-white px-4 py-1 rounded-lg"
+            onClick={() => setToUser(normalizedSearchInput)}
+            disabled={!normalizedSearchInput || isSelectedUser}
+            className={`px-4 py-1 rounded-lg text-white transition-all duration-150 active:scale-95 ${
+              isSelectedUser
+                ? "bg-emerald-600 cursor-default"
+                : "bg-[#5F4F4F] hover:bg-[#4d3f3f] cursor-pointer"
+            }`}
           >
-            Select
+            {isSelectedUser ? "Selected" : "Select"}
           </button>
         </div>
       ) : (
