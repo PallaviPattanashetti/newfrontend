@@ -227,6 +227,7 @@ const syncStoredChatIdentity = async (fallbackIdentifier: string) => {
     }
 
     localStorage.setItem(CHAT_USERNAME_STORAGE_KEY, resolvedUsername);
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 };
 
 export const createAccount = async (user: RegisterUser) => {

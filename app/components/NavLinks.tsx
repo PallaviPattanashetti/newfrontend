@@ -20,7 +20,7 @@ export function NavLinks() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [unreadDmCount, setUnreadDmCount] = useState(0);
   const { credits } = useCredits();
-{credits.toFixed(2)}
+  const displayCredits = Number.isFinite(credits) ? credits.toFixed(2) : "0.00";
 
   useEffect(() => {
     const refreshAuthState = async () => {
@@ -137,7 +137,7 @@ export function NavLinks() {
             <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/65">
               Credits
             </span>
-            <span className="text-sm font-black leading-none">{credits}</span>
+            <span className="text-sm font-black leading-none">{displayCredits}</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export function NavLinks() {
             <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-black/65">
               Credits
             </span>
-            <span className="text-sm font-black leading-none">{credits}</span>
+            <span className="text-sm font-black leading-none">{displayCredits}</span>
           </div>
         </div>
 

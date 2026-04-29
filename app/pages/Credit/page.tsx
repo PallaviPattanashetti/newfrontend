@@ -3,11 +3,11 @@
 import { Suspense, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams } from "next/navigation";
-import { fetchTransaction, fetchTransfer, getUserIdByUsername } from "@/lib/transactionservices";
+import { fetchTransfer, getUserIdByUsername } from "@/lib/transactionservices";
 import { TransactionDTO } from "@/interfaces/creditinterfaces";
 import { getStoredChatUsername } from "@/lib/user-services";
 import {DoesUserExist} from "@/lib/transactionservices"
-import { useCredits } from "@/context/creditcontext";
+import { CREDITS_CHANGED_EVENT, useCredits } from "@/context/creditcontext";
 
 
 function CreditPageContent() {
@@ -15,15 +15,12 @@ function CreditPageContent() {
   const creditRecipient = searchParams.get("to")?.trim() ?? "";
   const [isSuccess, setIsSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  
-
-  const users = ["Ken", "Jose", "Isaiah", "Jacob"];
 
 
   const [fromUser, setFromUser] = useState("");
   const [senderId, setSenderId] = useState<number>(0);
   const [toUser, setToUser] = useState("");
-const { credits, setCredits } = useCredits();  
+const { credits, setCredits, refreshCredits } = useCredits();  
 const [transferAmount, setTransferAmount] = useState(0.00);
   const [shake, setShake] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -34,16 +31,20 @@ const [hasSearched, setHasSearched] = useState(false);
 
 useEffect(() => {
   async function onload() {
-    const user = await getStoredChatUsername();
+    const user = getStoredChatUsername();
     setFromUser(user);
 
     if (user) {
       const id = await getUserIdByUsername(user);
-      setSenderId(id);
+      setSenderId(id ?? 0);
     }
   }
   onload();
 }, [])
+
+useEffect(() => {
+  void refreshCredits();
+}, [refreshCredits]);
 
 useEffect(() => {
   if (!creditRecipient) {
@@ -53,10 +54,11 @@ useEffect(() => {
   setSearchInput(creditRecipient);
   setToUser(creditRecipient);
   setHasSearched(false);
+  setSearchResult(false);
 }, [creditRecipient]);
 
-  const handleIncrease = async () => {
-    if (credits >= 1) {
+  const handleIncrease = () => {
+    if (transferAmount + 1 <= credits) {
       setTransferAmount(prev => prev + 1);
       setShake(false);
     } else {
@@ -75,10 +77,16 @@ useEffect(() => {
 
 
  const handleUserSearch = async () => {
-  const result = await DoesUserExist(searchInput);
+  const nextSearchInput = searchInput.trim();
+  if (!nextSearchInput) {
+    setHasSearched(true);
+    setSearchResult(false);
+    return;
+  }
+
+  const result = await DoesUserExist(nextSearchInput);
   setHasSearched(true);
-  console.log(result);
-  setSearchResult(result);
+  setSearchResult(Boolean(result));
 }
 
 
@@ -88,7 +96,7 @@ useEffect(() => {
   };
 
   const handleTransfer = async () => {
-  if (!fromUser || !toUser || transferAmount === 0 || fromUser === toUser) {
+  if (!fromUser || !toUser || senderId <= 0 || transferAmount <= 0 || transferAmount > credits || fromUser === toUser) {
     return triggerError();
   }
 
@@ -105,15 +113,11 @@ useEffect(() => {
 
 console.log("TRANSFER RESPONSE:", res);
 
-if (!res) {
-  throw new Error("Transfer failed");
-}
-
-  setCredits(credits - transferAmount);
-  window.dispatchEvent(new Event("auth-changed"));
+  setCredits(Math.max(0, credits - transferAmount));
+  window.dispatchEvent(new Event(CREDITS_CHANGED_EVENT));
+  await refreshCredits();
 
   setIsSuccess(true);
-    setIsSuccess(true);
   } catch (err) {
     console.error(err);
     triggerError();
@@ -223,7 +227,7 @@ if (!res) {
 
               <div className="w-full flex justify-end">
                 <div className="h-12 flex items-center px-4 bg-yellow-100 text-black rounded-lg font-mono border-2 border-black font-bold">
-                  Balance Left: {credits}
+                  Balance Left: {credits.toFixed(2)}
                 </div>
               </div>
 
@@ -257,8 +261,10 @@ if (!res) {
                 onClick={() => { 
                   setIsSuccess(false); 
                   setTransferAmount(0);
-                  setFromUser("");
                   setToUser("");
+                  setSearchInput("");
+                  setHasSearched(false);
+                  setSearchResult(false);
                 }}
                 className="mt-6 px-10 py-2 bg-black text-white rounded-full font-bold cursor-pointer hover:bg-gray-800"
               > Done </button>
