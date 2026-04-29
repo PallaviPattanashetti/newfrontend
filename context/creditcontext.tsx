@@ -16,7 +16,10 @@ const CreditContext = createContext<CreditContextType | null>(null);
 
 export function CreditProvider({ children }: { children: React.ReactNode }) {
   const [credits, setCreditsState] = useState<number>(0);
-  const [username, setUsername] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(() => {
+    const stored = getStoredChatUsername().trim();
+    return stored || null;
+  });
 
   const sanitizeCredits = (value: number) => {
     if (!Number.isFinite(value)) {
@@ -31,13 +34,11 @@ export function CreditProvider({ children }: { children: React.ReactNode }) {
     return stored || null;
   };
 
-  const loadUsername = () => {
+  const loadUsername = useCallback(() => {
     setUsername(getCurrentUsername());
-  };
+  }, []);
 
   useEffect(() => {
-    loadUsername();
-
     const onAuthChanged = () => {
       loadUsername();
     };
@@ -47,7 +48,7 @@ export function CreditProvider({ children }: { children: React.ReactNode }) {
     return () => {
       window.removeEventListener("auth-changed", onAuthChanged);
     };
-  }, []);
+  }, [loadUsername]);
 
   const refreshCredits = useCallback(async () => {
     const activeUsername = username ?? getCurrentUsername();
@@ -70,7 +71,13 @@ export function CreditProvider({ children }: { children: React.ReactNode }) {
   }, [username]);
 
   useEffect(() => {
-    void refreshCredits();
+    const refreshTimer = window.setTimeout(() => {
+      void refreshCredits();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(refreshTimer);
+    };
   }, [username, refreshCredits]);
 
   useEffect(() => {
