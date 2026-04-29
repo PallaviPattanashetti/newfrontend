@@ -19,7 +19,7 @@ type DmConversationPanelProps = {
 };
 
 const formatMessageTimestamp = (value: string) => {
-  const parsed = new Date(value);
+  const parsed = new Date(value.endsWith("Z") || value.includes("+") ? value : value + "Z");
   if (Number.isNaN(parsed.getTime())) {
     return "";
   }

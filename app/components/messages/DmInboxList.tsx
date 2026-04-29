@@ -12,7 +12,7 @@ type DmInboxListProps = {
 };
 
 const formatTimestamp = (value: string) => {
-  const parsed = new Date(value);
+  const parsed = new Date(value.endsWith("Z") || value.includes("+") ? value : value + "Z");
   if (Number.isNaN(parsed.getTime())) {
     return "";
   }
@@ -97,7 +97,7 @@ export function DmInboxList({
                         {getInitials(item.otherDisplayName, item.otherUsername)}
                       </div>
                     )}
-
+ 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
