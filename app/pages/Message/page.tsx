@@ -363,12 +363,12 @@ function DmPageContent() {
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="w-full max-w-87.5 bg-[#5F4F4F]/50 rounded-xl flex flex-col items-center justify-center my-6 md:my-8 p-5 border border-gray-200 shadow-sm"
+        className="w-full max-w-7xl flex items-center justify-between gap-3 my-3 md:my-4"
       >
-        <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight text-center">
+        <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
           Messages
         </h1>
-        <p className="mt-2 text-sm font-medium text-white/90 text-center">
+        <p className="text-xs md:text-sm font-medium text-white/95 bg-[#5F4F4F]/65 rounded-full px-3 py-1.5 border border-white/25 shadow-sm whitespace-nowrap">
           Signed in as {currentUsername || "..."}
         </p>
       </motion.div>
@@ -377,7 +377,7 @@ function DmPageContent() {
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-[1280px] h-[72vh] min-h-[540px] max-h-[840px] border border-gray-200 bg-[#28a8af]/40 backdrop-blur-md flex flex-col md:flex-row shadow-xl rounded-2xl overflow-hidden"
+        className="w-full max-w-7xl h-[76vh] min-h-135 max-h-210 border border-gray-200 bg-[#28a8af]/40 backdrop-blur-md flex flex-col md:flex-row shadow-xl rounded-2xl overflow-hidden"
       >
         <DmInboxList
           draftRecipient={draftRecipient}
