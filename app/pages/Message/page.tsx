@@ -44,20 +44,15 @@ const sortMessages = (items: DmMessage[]) =>
 const buildMessageIdentity = (
   message: Pick<DmMessage, "id" | "senderUsername" | "message" | "sentAtUtc">,
 ) => {
-  if (message.id > 0) {
-    return `id:${message.id}`;
-  }
-
+  if (message.id > 0) return `id:${message.id}`;
   return `${message.senderUsername}|${message.message}|${message.sentAtUtc}`;
 };
 
 const mergeMessages = (existing: DmMessage[], incoming: DmMessage[]) => {
   const merged = new Map<string, DmMessage>();
-
   for (const message of [...existing, ...incoming]) {
     merged.set(buildMessageIdentity(message), message);
   }
-
   return sortMessages([...merged.values()]);
 };
 
@@ -85,6 +80,14 @@ const buildLiveMessage = (payload: LiveDmPayload, currentUsername: string): DmMe
   isMine: payload.from.toLowerCase() === currentUsername.toLowerCase(),
 });
 
+const BG = `
+  radial-gradient(ellipse at 15% 15%, #38bdf8 0%, transparent 50%),
+  radial-gradient(ellipse at 85% 10%, #818cf8 0%, transparent 45%),
+  radial-gradient(ellipse at 80% 85%, #34d399 0%, transparent 50%),
+  radial-gradient(ellipse at 10% 80%, #fb923c 0%, transparent 45%),
+  linear-gradient(160deg, #e0f2fe 0%, #bae6fd 60%, #7dd3fc 100%)
+`;
+
 function DmPageContent() {
   const searchParams = useSearchParams();
   const contactQuery = searchParams.get("contact")?.trim() ?? "";
@@ -106,121 +109,58 @@ function DmPageContent() {
   const selectedUsernameRef = useRef(selectedUsername);
   const currentUsernameRef = useRef(currentUsername);
 
-  useEffect(() => {
-    selectedUsernameRef.current = selectedUsername;
-  }, [selectedUsername]);
-
-  useEffect(() => {
-    currentUsernameRef.current = currentUsername;
-  }, [currentUsername]);
+  useEffect(() => { selectedUsernameRef.current = selectedUsername; }, [selectedUsername]);
+  useEffect(() => { currentUsernameRef.current = currentUsername; }, [currentUsername]);
 
   const activeConversation = useMemo(
-    () =>
-      inboxItems.find(
-        (item) => item.otherUsername.toLowerCase() === selectedUsername.toLowerCase(),
-      ) ?? null,
+    () => inboxItems.find((item) => item.otherUsername.toLowerCase() === selectedUsername.toLowerCase()) ?? null,
     [inboxItems, selectedUsername],
   );
 
   useEffect(() => {
     const query = draftRecipient.trim();
-
-    if (!query) {
-      setRecipientSuggestions([]);
-      setIsSearchingRecipients(false);
-      return;
-    }
+    if (!query) { setRecipientSuggestions([]); setIsSearchingRecipients(false); return; }
 
     let isCancelled = false;
     setIsSearchingRecipients(true);
 
     const timeoutId = window.setTimeout(async () => {
       const normalizedQuery = query.toLowerCase();
-
       const inboxMatches: RecipientSuggestion[] = inboxItems
-        .filter((item) => {
-          const byUsername = item.otherUsername.toLowerCase().includes(normalizedQuery);
-          const byDisplayName = item.otherDisplayName.toLowerCase().includes(normalizedQuery);
-          return byUsername || byDisplayName;
-        })
-        .map((item) => ({
-          username: item.otherUsername,
-          displayName: item.otherDisplayName || item.otherUsername,
-          profilePictureUrl: item.otherProfilePictureUrl,
-        }));
+        .filter((item) => item.otherUsername.toLowerCase().includes(normalizedQuery) || item.otherDisplayName.toLowerCase().includes(normalizedQuery))
+        .map((item) => ({ username: item.otherUsername, displayName: item.otherDisplayName || item.otherUsername, profilePictureUrl: item.otherProfilePictureUrl }));
 
       try {
-        const profiles = await getDiscoverableProfiles(query, {
-          skip: 0,
-          take: 8,
-          random: false,
-          onlyComplete: false,
-        });
-
-        if (isCancelled) {
-          return;
-        }
+        const profiles = await getDiscoverableProfiles(query, { skip: 0, take: 8, random: false, onlyComplete: false });
+        if (isCancelled) return;
 
         const merged = new Map<string, RecipientSuggestion>();
-
-        for (const match of inboxMatches) {
-          merged.set(match.username.toLowerCase(), match);
-        }
-
+        for (const match of inboxMatches) merged.set(match.username.toLowerCase(), match);
         for (const profile of profiles) {
           const username = profile.username.trim();
-          if (!username) {
-            continue;
-          }
-
+          if (!username) continue;
           const key = username.toLowerCase();
-          if (!merged.has(key)) {
-            merged.set(key, {
-              username,
-              displayName: profile.profileName || username,
-              profilePictureUrl: profile.profilePictureUrl || null,
-            });
-          }
+          if (!merged.has(key)) merged.set(key, { username, displayName: profile.profileName || username, profilePictureUrl: profile.profilePictureUrl || null });
         }
 
-        const nextSuggestions = [...merged.values()]
-          .filter((item) => item.username.toLowerCase() !== currentUsername.toLowerCase())
-          .slice(0, 8);
-
+        const nextSuggestions = [...merged.values()].filter((item) => item.username.toLowerCase() !== currentUsername.toLowerCase()).slice(0, 8);
         setRecipientSuggestions(nextSuggestions);
       } catch (error) {
-        if (!isCancelled) {
-          console.error("Recipient search failed", error);
-          setRecipientSuggestions(inboxMatches.slice(0, 8));
-        }
+        if (!isCancelled) { console.error("Recipient search failed", error); setRecipientSuggestions(inboxMatches.slice(0, 8)); }
       } finally {
-        if (!isCancelled) {
-          setIsSearchingRecipients(false);
-        }
+        if (!isCancelled) setIsSearchingRecipients(false);
       }
     }, 220);
 
-    return () => {
-      isCancelled = true;
-      window.clearTimeout(timeoutId);
-    };
+    return () => { isCancelled = true; window.clearTimeout(timeoutId); };
   }, [currentUsername, draftRecipient, inboxItems]);
 
   const refreshInbox = useCallback(async () => {
     const inbox = sortInboxItems(await getDmInbox());
     setInboxItems(inbox);
     setIsInboxLoading(false);
-
-    if (contactQuery) {
-      setSelectedUsername(contactQuery);
-      setDraftRecipient(contactQuery);
-      return;
-    }
-
-    if (!selectedUsernameRef.current && inbox.length > 0) {
-      setSelectedUsername(inbox[0].otherUsername);
-      setDraftRecipient(inbox[0].otherUsername);
-    }
+    if (contactQuery) { setSelectedUsername(contactQuery); setDraftRecipient(contactQuery); return; }
+    if (!selectedUsernameRef.current && inbox.length > 0) { setSelectedUsername(inbox[0].otherUsername); setDraftRecipient(inbox[0].otherUsername); }
   }, [contactQuery]);
 
   const refreshUnreadCount = useCallback(async () => {
@@ -233,157 +173,78 @@ function DmPageContent() {
     setDraftRecipient(otherUsername);
   };
 
-  const handleSelectRecipientSuggestion = (username: string) => {
-    void openConversation(username);
-  };
+  const handleSelectRecipientSuggestion = (username: string) => { void openConversation(username); };
 
   useEffect(() => {
     let isCancelled = false;
-
     const init = async () => {
       setIsConnecting(true);
       setConnectionError("");
-
       const storedUsername = getStoredChatUsername();
       if (!storedUsername) {
-        if (!isCancelled) {
-          setConnectionError("No username found. Sign in again before opening messages.");
-          setIsConnecting(false);
-          setIsInboxLoading(false);
-        }
+        if (!isCancelled) { setConnectionError("No username found. Sign in again before opening messages."); setIsConnecting(false); setIsInboxLoading(false); }
         return;
       }
-
-      if (!isCancelled) {
-        setCurrentUsername(storedUsername);
-      }
+      if (!isCancelled) setCurrentUsername(storedUsername);
 
       try {
         await Promise.all([refreshInbox(), refreshUnreadCount()]);
-
         await startConnection(async (payload) => {
           const username = currentUsernameRef.current;
-          if (!username) {
-            return;
-          }
-
-          // Sender already sees optimistic UI updates, so skip outbound echoes.
-          if (payload.from.toLowerCase() === username.toLowerCase()) {
-            return;
-          }
-
-          const belongsToCurrentUser =
-            payload.from.toLowerCase() === username.toLowerCase() ||
-            payload.to.toLowerCase() === username.toLowerCase();
-
-          if (!belongsToCurrentUser) {
-            return;
-          }
-
-          const otherUsername =
-            payload.from.toLowerCase() === username.toLowerCase() ? payload.to : payload.from;
-
+          if (!username) return;
+          if (payload.from.toLowerCase() === username.toLowerCase()) return;
+          const belongsToCurrentUser = payload.from.toLowerCase() === username.toLowerCase() || payload.to.toLowerCase() === username.toLowerCase();
+          if (!belongsToCurrentUser) return;
+          const otherUsername = payload.from.toLowerCase() === username.toLowerCase() ? payload.to : payload.from;
           if (selectedUsernameRef.current.toLowerCase() === otherUsername.toLowerCase()) {
             setMessages((prev) => mergeMessages(prev, [buildLiveMessage(payload, username)]));
-
-            if (payload.to.toLowerCase() === username.toLowerCase()) {
-              await markDmConversationRead(otherUsername);
-            }
+            if (payload.to.toLowerCase() === username.toLowerCase()) await markDmConversationRead(otherUsername);
           }
-
           await Promise.all([refreshInbox(), refreshUnreadCount()]);
         });
-
         await registerUser(storedUsername);
-
-        if (!isCancelled) {
-          setIsChatReady(true);
-        }
+        if (!isCancelled) setIsChatReady(true);
       } catch (error) {
-        if (isCancelled || isExpectedSignalRStartupAbort(error)) {
-          return;
-        }
-
+        if (isCancelled || isExpectedSignalRStartupAbort(error)) return;
         const errorMessage = error instanceof Error ? error.message : "Unable to connect to messaging service.";
         console.error("SignalR init failed", error);
-        if (!isCancelled) {
-          setConnectionError(errorMessage);
-        }
+        if (!isCancelled) setConnectionError(errorMessage);
       } finally {
-        if (!isCancelled) {
-          setIsConnecting(false);
-        }
+        if (!isCancelled) setIsConnecting(false);
       }
     };
-
     void init();
-
-    return () => {
-      isCancelled = true;
-      void stopConnection();
-    };
+    return () => { isCancelled = true; void stopConnection(); };
   }, [contactQuery, refreshInbox, refreshUnreadCount]);
 
   useEffect(() => {
-    if (!selectedUsername) {
-      setMessages([]);
-      return;
-    }
-
+    if (!selectedUsername) { setMessages([]); return; }
     let isCancelled = false;
-
     const loadConversation = async () => {
       setIsMessagesLoading(true);
-
       try {
         const conversationMessages = sortMessages(await getDmConversationMessages(selectedUsername));
-        if (isCancelled) {
-          return;
-        }
-
+        if (isCancelled) return;
         setMessages(conversationMessages);
-
-        const activeInboxItem = inboxItems.find(
-          (item) => item.otherUsername.toLowerCase() === selectedUsername.toLowerCase(),
-        );
-
+        const activeInboxItem = inboxItems.find((item) => item.otherUsername.toLowerCase() === selectedUsername.toLowerCase());
         if (activeInboxItem?.unreadCount) {
           await markDmConversationRead(selectedUsername);
-          if (isCancelled) {
-            return;
-          }
-
-          setInboxItems((prev) =>
-            prev.map((item) =>
-              item.otherUsername.toLowerCase() === selectedUsername.toLowerCase()
-                ? { ...item, unreadCount: 0 }
-                : item,
-            ),
-          );
-
+          if (isCancelled) return;
+          setInboxItems((prev) => prev.map((item) => item.otherUsername.toLowerCase() === selectedUsername.toLowerCase() ? { ...item, unreadCount: 0 } : item));
           await refreshUnreadCount();
         }
       } catch (error) {
         console.error("DM conversation load failed", error);
       } finally {
-        if (!isCancelled) {
-          setIsMessagesLoading(false);
-        }
+        if (!isCancelled) setIsMessagesLoading(false);
       }
     };
-
     void loadConversation();
-
-    return () => {
-      isCancelled = true;
-    };
+    return () => { isCancelled = true; };
   }, [inboxItems, refreshUnreadCount, selectedUsername]);
 
   useEffect(() => {
-    if (!contactQuery) {
-      return;
-    }
-
+    if (!contactQuery) return;
     setSelectedUsername(contactQuery);
     setDraftRecipient(contactQuery);
   }, [contactQuery]);
@@ -391,10 +252,7 @@ function DmPageContent() {
   const handleSend = async () => {
     const recipient = draftRecipient.trim();
     const trimmedMessage = draftMessage.trim();
-
-    if (!isChatReady || !recipient || !trimmedMessage) {
-      return;
-    }
+    if (!isChatReady || !recipient || !trimmedMessage) return;
 
     const optimisticMessage = buildOptimisticMessage(recipient, currentUsername, trimmedMessage);
     setMessages((prev) => mergeMessages(prev, [optimisticMessage]));
@@ -404,33 +262,11 @@ function DmPageContent() {
     setConnectionError("");
 
     setInboxItems((prev) => {
-      const existing = prev.find(
-        (item) => item.otherUsername.toLowerCase() === recipient.toLowerCase(),
-      );
-
+      const existing = prev.find((item) => item.otherUsername.toLowerCase() === recipient.toLowerCase());
       const nextItem: DmInboxItem = existing
-        ? {
-            ...existing,
-            lastMessagePreview: trimmedMessage,
-            lastMessageAtUtc: optimisticMessage.sentAtUtc,
-            lastMessageFromUsername: currentUsername,
-          }
-        : {
-            threadId: 0,
-            otherUserId: 0,
-            otherUsername: recipient,
-            otherDisplayName: recipient,
-            otherProfilePictureUrl: null,
-            lastMessagePreview: trimmedMessage,
-            lastMessageAtUtc: optimisticMessage.sentAtUtc,
-            lastMessageFromUsername: currentUsername,
-            unreadCount: 0,
-          };
-
-      const filtered = prev.filter(
-        (item) => item.otherUsername.toLowerCase() !== recipient.toLowerCase(),
-      );
-
+        ? { ...existing, lastMessagePreview: trimmedMessage, lastMessageAtUtc: optimisticMessage.sentAtUtc, lastMessageFromUsername: currentUsername }
+        : { threadId: 0, otherUserId: 0, otherUsername: recipient, otherDisplayName: recipient, otherProfilePictureUrl: null, lastMessagePreview: trimmedMessage, lastMessageAtUtc: optimisticMessage.sentAtUtc, lastMessageFromUsername: currentUsername, unreadCount: 0 };
+      const filtered = prev.filter((item) => item.otherUsername.toLowerCase() !== recipient.toLowerCase());
       return sortInboxItems([nextItem, ...filtered]);
     });
 
@@ -438,14 +274,9 @@ function DmPageContent() {
       await sendPrivateMessage(recipient, currentUsername, trimmedMessage);
     } catch (error) {
       console.error("SignalR live send failed", error);
-
       const sent = await postDmMessage(recipient, trimmedMessage);
-      if (!sent) {
-        setConnectionError("Unable to send message.");
-        return;
-      }
+      if (!sent) { setConnectionError("Unable to send message."); return; }
     }
-
     await refreshInbox();
   };
 
@@ -453,27 +284,39 @@ function DmPageContent() {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center flex flex-col items-center p-4 md:p-6 font-sans"
-      style={{ backgroundImage: "url('/assets/TBBackround.jpeg')" }}
+      className="min-h-screen flex flex-col items-center px-3 py-4 sm:px-4 sm:py-5 md:p-6 font-sans"
+      style={{ background: BG }}
     >
+      {/* Header */}
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="w-full max-w-7xl flex items-center justify-between gap-3 my-3 md:my-4"
+        className="w-full max-w-sm sm:max-w-2xl md:max-w-7xl flex items-center justify-between gap-2 sm:gap-3 my-3 sm:my-4"
       >
-        <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+        <h1
+          className="font-bold tracking-tight"
+          style={{ fontSize: "clamp(20px, 4vw, 32px)", color: "#0369a1" }}
+        >
           Messages
         </h1>
-        <p className="text-xs md:text-sm font-medium text-white/95 bg-[#5F4F4F]/65 rounded-full px-3 py-1.5 border border-white/25 shadow-sm whitespace-nowrap">
-          Signed in as {currentUsername || "..."}
+        <p
+          className="text-[10px] sm:text-xs md:text-sm font-medium rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5 border border-white/50 shadow-sm whitespace-nowrap backdrop-blur-sm"
+          style={{ background: "rgba(255,255,255,0.55)", color: "#1e3a5f" }}
+        >
+          Signed in as <span className="font-black" style={{ color: "#0369a1" }}>{currentUsername || "..."}</span>
         </p>
       </motion.div>
 
+      {/* Chat */}
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-7xl h-[76vh] min-h-135 max-h-210 border border-gray-200 bg-[#28a8af]/40 backdrop-blur-md flex flex-col md:flex-row shadow-xl rounded-2xl overflow-hidden"
+        className="w-full max-w-sm sm:max-w-2xl md:max-w-7xl border border-white/50 backdrop-blur-md flex flex-col md:flex-row shadow-xl rounded-2xl overflow-hidden"
+        style={{
+          background: "rgba(255,255,255,0.45)",
+          height: "clamp(500px, 76vh, 840px)",
+        }}
       >
         <DmInboxList
           draftRecipient={draftRecipient}
@@ -502,12 +345,17 @@ function DmPageContent() {
         />
       </motion.div>
 
+      {/* Quote */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
+        className="w-full max-w-sm sm:max-w-2xl md:max-w-4xl px-2"
       >
-        <p className="text-[32px] md:text-[40px] mt-10 text-gray-900 text-center font-light italic">
+        <p
+          className="mt-8 sm:mt-10 text-center font-light italic"
+          style={{ fontSize: "clamp(16px, 4vw, 40px)", color: "#1e3a5f" }}
+        >
           &ldquo;A community is just a collection of shared hours.&rdquo;
         </p>
       </motion.div>

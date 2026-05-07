@@ -240,7 +240,7 @@ export function NavLinks() {
             </button>
           </div>
 
-          {/* ── DESKTOP nav icons row ── */}
+         
           <motion.div
             variants={listVariants}
             initial="hidden"

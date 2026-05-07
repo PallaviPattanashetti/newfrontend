@@ -155,7 +155,7 @@ export default function HelpCategory() {
         </h1>
       </motion.div>
 
-      {/* Get / Offer selector */}
+      {/* Get / Offer  */}
       <div
         className="w-full max-w-sm sm:max-w-2xl md:max-w-3xl border border-white/60 flex flex-col sm:flex-row items-stretch justify-center gap-4 p-4 sm:p-6 rounded-2xl mb-8 sm:mb-12 shadow-md"
         style={{ background: "rgba(255,255,255,0.45)" }}

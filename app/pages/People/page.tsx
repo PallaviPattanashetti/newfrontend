@@ -188,7 +188,7 @@ function PeoplePageContent() {
         </h1>
       </div>
 
-      {/* Search bar */}
+      {/* Search */}
       <div
         className="w-full max-w-sm sm:max-w-xl md:max-w-5xl p-3 sm:p-4 md:p-5 rounded-4xl shadow-xl border border-white/50 mb-4 sm:mb-6 flex flex-col sm:flex-row gap-3"
         style={{ background: "rgba(255,255,255,0.35)" }}

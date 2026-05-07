@@ -107,7 +107,7 @@ export default function ProfilePage() {
         </h1>
       </motion.div>
 
-      {/* Avatar box */}
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -133,7 +133,7 @@ export default function ProfilePage() {
         </p>
       </motion.div>
 
-      {/* Names box */}
+    
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -168,7 +168,7 @@ export default function ProfilePage() {
         </p>
       </motion.div>
 
-      {/* Description + button box */}
+     
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
