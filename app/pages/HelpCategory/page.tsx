@@ -224,7 +224,7 @@ export default function HelpCategory() {
         </motion.div>
       </div>
 
-      {/* Category grid */}
+      {/* Category */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 w-full max-w-sm sm:max-w-2xl lg:max-w-5xl mb-12">
         {selectableCategories.map((category) => (
           <motion.div
